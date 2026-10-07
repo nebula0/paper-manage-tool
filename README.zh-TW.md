@@ -90,13 +90,13 @@
 ### 第 3 步：請 Claude 安裝外掛
 
 1. 在 Claudian 面板裡說：
-   > 幫我安裝 Claude Code 外掛：執行 `claude plugin marketplace add nebula0/lit-tools`，再執行 `claude plugin install lit-tools@lit-tools-market`
+   > 幫我安裝 Claude Code 外掛：執行 `claude plugin marketplace add nebula0/paper-manage-tool`，再執行 `claude plugin install lit-tools@lit-tools-market`
 2. Claude 說安裝成功後，**完全關掉 Obsidian 再重開**，讓外掛生效。
 
 <details>
 <summary>不能連 GitHub？用壓縮檔安裝</summary>
 
-在本頁右上角「Code」→「Download ZIP」下載，解壓縮放在固定的地方（例如 `C:\Users\你的名字\lit-tools`，之後不要移動），把上面指令裡的 `nebula0/lit-tools` 換成這個資料夾路徑（前後加引號）。
+在本頁右上角「Code」→「Download ZIP」下載，解壓縮放在固定的地方（例如 `C:\Users\你的名字\lit-tools`，之後不要移動），把上面指令裡的 `nebula0/paper-manage-tool` 換成這個資料夾路徑（前後加引號）。
 </details>
 
 ### 第 4 步：跑設定精靈

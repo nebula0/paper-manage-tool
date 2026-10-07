@@ -94,13 +94,13 @@ Install in this order, and skip anything you already have:
 ### Step 3: Ask Claude to install the plugin
 
 1. In the Claudian panel, say:
-   > Install a Claude Code plugin for me: run `claude plugin marketplace add nebula0/lit-tools`, then run `claude plugin install lit-tools@lit-tools-market`
+   > Install a Claude Code plugin for me: run `claude plugin marketplace add nebula0/paper-manage-tool`, then run `claude plugin install lit-tools@lit-tools-market`
 2. When Claude reports success, **quit Obsidian completely and reopen it** so the plugin loads.
 
 <details>
 <summary>Can't reach GitHub? Install from a ZIP</summary>
 
-On this page, click Code → Download ZIP. Unzip it somewhere permanent (e.g. `C:\Users\you\lit-tools`, and don't move it afterwards). In the command above, replace `nebula0/lit-tools` with that folder path, in quotes.
+On this page, click Code → Download ZIP. Unzip it somewhere permanent (e.g. `C:\Users\you\lit-tools`, and don't move it afterwards). In the command above, replace `nebula0/paper-manage-tool` with that folder path, in quotes.
 </details>
 
 ### Step 4: Run the setup wizard
