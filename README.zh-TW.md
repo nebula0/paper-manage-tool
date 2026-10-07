@@ -1,8 +1,24 @@
-# lit-tools：讓 Claude 幫你讀論文、整理文獻
+# lit-tools：你的論文專屬 LLM wiki，讓 Claude 幫你讀論文、整理文獻
+
+**Zotero + Obsidian + Claude Code** · 搜尋文獻 · 讀 PDF 並附頁碼回答 · 自動更新的文獻庫
 
 [English](README.md) ｜ **繁體中文**
 
-這是給 Claude Code 用的外掛。裝好之後，你可以在 Obsidian 裡直接跟 Claude 說「幫我找 ○○ 的文獻」、「這篇的實驗怎麼做的？」，Claude 會去搜尋、讀你 Zotero 裡的 PDF，把結果整理成一個會自動更新的文獻庫（在 Obsidian 裡看）。
+這是給 [Claude Code](https://claude.com/claude-code) 用的外掛，把你的 Zotero 文獻變成一個**由 AI 維護、放在 Obsidian 裡的 wiki**。裝好之後，你可以在 Obsidian 裡直接跟 Claude 說「幫我找 ○○ 的文獻」、「這篇的實驗怎麼做的？」，Claude 會去搜尋、讀你 Zotero 裡的 PDF，回答附頁碼與原句，再把結果整理成一個會自動更新的文獻庫。
+
+<!-- TODO: 示範 GIF，例如 ![demo](docs/demo.gif) -->
+
+### 為什麼說是「LLM wiki」？
+
+Andrej Karpathy 提出的 [LLM Wiki 構想](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)是：不要每次都讓 AI 從原始文件重新搜尋，而是讓它在原始資料之上建立並持續維護一份 markdown wiki。lit-tools 就是把這個做法用在學術文獻上：
+
+| LLM Wiki 的層次 | 在 lit-tools 裡 |
+|---|---|
+| 原始資料（不改動） | **Zotero** 裡的 PDF 和你的畫記 |
+| Wiki（AI 維護的 markdown） | **Obsidian** vault：一篇論文一頁、一次搜尋一頁、每篇論文一份累積所有問答的 AI 筆記 |
+| 規則（約束 AI 的做法） | skill 與程式強制要求來源：書目只從 **OpenAlex** 抓（不會有編造的 DOI），回答一律附頁碼 |
+
+適合正在做**文獻回顧**、本來就用（或想開始用）Zotero 和 Obsidian、想要一個「做的事情都查得到依據」的 AI 研究助理的研究生與研究者。
 
 ---
 
@@ -259,6 +275,12 @@ Better BibTeX 沒裝好，或那篇還沒產生代碼。在 Zotero 對那篇按�
 
 **Q：會不會很貴？**
 用的是你自己 Claude 訂閱的額度，沒有額外費用。精讀整篇論文比較耗額度，平常問特定段落就好。
+
+---
+
+## 歡迎回饋
+
+這是一個碩士生自己做的專案，很想聽聽你的使用心得：哪裡好用、安裝卡在哪、希望它多做什麼。歡迎開 [issue](https://github.com/nebula0/paper-manage-tool/issues)，覺得這個想法有用的話也可以按個 ⭐。
 
 ---
 

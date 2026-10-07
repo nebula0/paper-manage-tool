@@ -1,10 +1,26 @@
-# lit-tools: let Claude read papers and organize your literature
+# lit-tools: an LLM wiki for your research papers
+
+**Zotero + Obsidian + Claude Code** · literature search · PDF reading with page-cited answers · self-updating literature database
 
 **English** ｜ [繁體中文](README.zh-TW.md)
 
-A plugin for Claude Code. Once installed, you can ask Claude things like "find literature on X" or "how did this paper run the experiment?" from inside Obsidian. Claude searches the literature, reads the PDFs in your Zotero library, and keeps the results in a literature database that updates itself, which you browse in Obsidian.
+A [Claude Code](https://claude.com/claude-code) plugin that turns your Zotero library into an **LLM-maintained wiki in Obsidian**. Ask Claude "find literature on X" or "how did this paper run the experiment?" and it searches the literature, reads the PDFs in your Zotero library, answers with page numbers and quotes, and files everything into a literature database that keeps itself up to date.
 
-> **Language note:** the plugin was built for Traditional Chinese users. Generated pages, folder names and record fields are in Chinese. You can still talk to Claude in English, and it will answer in English.
+<!-- TODO: demo GIF here — e.g. ![demo](docs/demo.gif) -->
+
+> **Language note:** the plugin was built for Traditional Chinese users, so generated pages, folder names and record fields are currently in Chinese. You can talk to Claude in English and it answers in English. A full English version is planned; if you'd use it, please open an issue so I know.
+
+### Why "LLM wiki"?
+
+Andrej Karpathy's [LLM Wiki idea](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) describes a pattern where an LLM doesn't re-search raw documents every time, but builds and maintains a persistent markdown wiki on top of them. lit-tools is that pattern applied to academic literature:
+
+| LLM Wiki layer | In lit-tools |
+|---|---|
+| Raw sources (immutable) | PDFs and your highlights in **Zotero** |
+| Wiki (LLM-maintained markdown) | **Obsidian** vault: one page per paper, one page per search task, an AI note per paper that accumulates every Q&A |
+| Schema (rules for the agent) | Skills and scripts that enforce sourcing: bibliographic data only from **OpenAlex** (no hallucinated DOIs), every answer cites pages |
+
+Good fit if you are a grad student or researcher doing a **literature review**, already use (or want to use) Zotero and Obsidian, and want an AI research assistant whose work you can check.
 
 ---
 
@@ -261,6 +277,12 @@ In Claudian, say "update the lit-tools plugin: run `claude plugin marketplace up
 
 **Q: Does it cost extra?**
 No. It uses your own Claude subscription. Reading a whole paper closely uses more of your quota, so for everyday questions, ask about specific sections.
+
+---
+
+## Feedback wanted
+
+This is a solo project from a master's student, and I'd love to hear from you: what worked, what broke during installation, what you wish it did. Open an [issue](https://github.com/nebula0/paper-manage-tool/issues), or just leave a ⭐ if you find the idea useful.
 
 ---
 

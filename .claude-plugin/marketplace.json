@@ -1,6 +1,6 @@
 {
   "name": "lit-tools-market",
-  "description": "Claude Code plugin for reading papers and managing literature with Zotero + Obsidian（研究生讀論文、整理、搜尋文獻的外掛）",
+  "description": "An LLM wiki for your research papers: Claude Code plugin for literature review with Zotero + Obsidian（研究生讀論文、整理、搜尋文獻的外掛）",
   "owner": {
     "name": "Nebula0"
   },
@@ -8,7 +8,7 @@
     {
       "name": "lit-tools",
       "source": "./plugins/lit-tools",
-      "description": "Search, read and organize papers with Zotero + Obsidian + Claude Code（讀論文、整理、搜尋文獻）"
+      "description": "LLM wiki for papers: search literature (OpenAlex), read Zotero PDFs with page-cited answers, auto-build an Obsidian literature database（讀論文、整理、搜尋文獻）"
     }
   ]
 }
