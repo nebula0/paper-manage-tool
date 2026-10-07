@@ -49,7 +49,7 @@ Day to day you only open two apps:
 
 ---
 
-## Installation (about 30 minutes)
+## Installation
 
 Step 1 has separate instructions for Windows and macOS. Steps 2–4 are the same on both.
 
