@@ -1,0 +1,205 @@
+filters:
+  and:
+    - file.inFolder("2_paper/文獻庫")
+    - file.hasProperty("citekey")
+formulas:
+  paper: file.asLink(note.title)
+properties:
+  formula.paper:
+    displayName: 文章
+  note.title:
+    displayName: 標題
+  note.first_author:
+    displayName: 第一作者
+  note.year:
+    displayName: 年份
+  note.journal:
+    displayName: 期刊
+  note.status:
+    displayName: 狀態
+  note.contribution:
+    displayName: 主要貢獻
+  note.evidence:
+    displayName: 依據
+  note.why:
+    displayName: 為何抓
+  note.ai_level:
+    displayName: AI 閱讀
+  note.human_level:
+    displayName: 你的閱讀
+  note.annotation_colors:
+    displayName: 畫記
+  note.annotated_pages:
+    displayName: 標註頁數
+  note.todo:
+    displayName: 待查
+  note.ai_annotations:
+    displayName: AI 標註
+  note.last_opened:
+    displayName: 最後開啟
+  note.fulltext:
+    displayName: 全文
+  note.cited_by:
+    displayName: 被引
+  note.cite_level:
+    displayName: 必引度
+  note.found:
+    displayName: 發現日
+  note.tasks:
+    displayName: 任務
+  note.collections:
+    displayName: Zotero 分類
+  note.keywords:
+    displayName: 關鍵字
+  note.card:
+    displayName: 閱讀卡
+  note.ai_note:
+    displayName: AI 筆記
+  note.our_lab_members:
+    displayName: 本團隊成員
+  note.tags:
+    displayName: 標籤
+views:
+  - type: table
+    name: 總表
+    order:
+      - formula.paper
+      - year
+      - first_author
+      - contribution
+      - tags
+      - ai_level
+      - human_level
+      - annotation_colors
+      - fulltext
+      - cited_by
+      - found
+      - tasks
+      - card
+      - ai_note
+    sort:
+      - property: status
+        direction: ASC
+      - property: found
+        direction: DESC
+    columnSize:
+      formula.paper: 730
+  - type: table
+    name: 最近新增
+    order:
+      - formula.paper
+      - found
+      - status
+      - tasks
+      - contribution
+      - why
+      - fulltext
+    sort:
+      - property: found
+        direction: DESC
+  - type: cards
+    name: 卡片牆
+    order:
+      - title
+      - contribution
+      - tags
+      - first_author
+      - year
+      - status
+      - human_level
+    sort:
+      - property: year
+        direction: DESC
+    image: note.cover
+    imageAspectRatio: 1.4
+    cardSize: 280
+  - type: table
+    name: 依分類
+    order:
+      - formula.paper
+      - year
+      - contribution
+      - human_level
+      - annotation_colors
+    sort:
+      - property: file.ctime
+        direction: DESC
+    columnSize:
+      formula.paper: 519
+      note.year: 53
+  - type: table
+    name: 你還沒讀
+    filters:
+      and:
+        - note.human_level <= 1
+        - note.status != "已排除"
+    order:
+      - formula.paper
+      - year
+      - contribution
+      - ai_level
+      - fulltext
+      - found
+    sort:
+      - property: ai_level
+        direction: DESC
+  - type: table
+    name: 需要你下載
+    filters:
+      and:
+        - note.has_pdf != true
+        - note.status != "已排除"
+    order:
+      - formula.paper
+      - year
+      - status
+      - fulltext
+      - why
+    sort:
+      - property: found
+        direction: DESC
+  - type: table
+    name: 有待查項
+    filters:
+      and:
+        - note.todo > 0
+    order:
+      - formula.paper
+      - todo
+      - annotation_colors
+      - last_opened
+    sort:
+      - property: todo
+        direction: DESC
+  - type: table
+    name: 候選與排除
+    filters:
+      or:
+        - note.status == "候選"
+        - note.status == "已排除"
+    order:
+      - formula.paper
+      - status
+      - found
+      - tasks
+      - why
+      - contribution
+      - evidence
+    sort:
+      - property: found
+        direction: DESC
+  - type: table
+    name: 本團隊
+    filters:
+      and:
+        - note.our_lab == true
+    order:
+      - formula.paper
+      - year
+      - our_lab_members
+      - contribution
+      - human_level
+      - cited_by
+    sort:
+      - property: year
+        direction: DESC

@@ -1,0 +1,20 @@
+{
+ "研究主題": "（用 2–3 句話描述你的研究題目。Claude 判斷文獻相關性、標 AI/本研究 都靠這段。執行 lit-setup（跟 Claude 說「設定 lit-tools」） 時會帶你填。）",
+ "本團隊": [
+  {
+   "名稱": "王小明",
+   "姓": "Wang",
+   "名": "Hsiao-Ming",
+   "說明": "範例：指導教授。不需要就整筆刪掉"
+  }
+ ],
+ "本團隊tag": "our-lab",
+ "標籤詞表": {
+  "topic/example-topic-a": "範例主題 A（setup 時換成你的主題）",
+  "topic/example-topic-b": "範例主題 B",
+  "type/experiment": "實驗",
+  "type/theory": "理論或模擬",
+  "type/review": "綜述",
+  "type/perspective": "觀點文章"
+ }
+}

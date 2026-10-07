@@ -1,0 +1,5 @@
+/* 文獻庫文章頁（cssclasses: litlib）：屬性欄只顯示常用欄位，其餘看 文獻庫.base 或切原始碼模式 */
+.litlib .metadata-property:not([data-property-key="status"]):not([data-property-key="year"]):not([data-property-key="journal"]):not([data-property-key="ai_level"]):not([data-property-key="human_level"]):not([data-property-key="cite_level"]):not([data-property-key="tags"]) {
+  display: none !important;
+}
+.litlib .metadata-add-button { display: none !important; }

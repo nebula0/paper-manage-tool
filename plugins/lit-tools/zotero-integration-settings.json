@@ -1,0 +1,24 @@
+{
+  "database": "Zotero",
+  "pdfExportImageDPI": 120,
+  "pdfExportImageFormat": "jpg",
+  "pdfExportImageQuality": 100,
+  "exportFormats": [
+    {
+      "name": "文獻卡片",
+      "outputPathTemplate": "2_paper/notes/{{citekey}} 閱讀卡.md",
+      "imageOutputPathTemplate": "1_attachment/zotero/{{citekey}}",
+      "imageBaseNameTemplate": "fig",
+      "templatePath": "templates/zotero-card.md"
+    }
+  ],
+  "citeSuggestTemplate": "[[{{citekey}}]]",
+  "openNoteAfterImport": false,
+  "citeFormats": [
+    {
+      "name": "引用",
+      "format": "template",
+      "template": "{%- set au = creators | filterby(\"creatorType\", \"startswith\", \"author\") -%}{%- set c1 = au | first -%}{%- if c1 -%}[({{ c1.lastName }}{% if au | length > 1 %} et al.{% endif %}, {{ citationKey.slice(-4) }})]({{ attachment.pdfURI if attachment and attachment.pdfURI else desktopURI }}){%- else -%}[({{ citationKey }})]({{ attachment.pdfURI if attachment and attachment.pdfURI else desktopURI }}){%- endif -%}"
+    }
+  ]
+}

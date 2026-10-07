@@ -1,0 +1,100 @@
+filters:
+  and:
+    - file.inFolder("2_paper/notes")
+    - file.hasProperty("citekey")
+properties:
+  note.title:
+    displayName: 標題
+  note.authors:
+    displayName: 作者
+  note.year:
+    displayName: 年份
+  note.journal:
+    displayName: 期刊
+  note.claim:
+    displayName: 一句話主張
+  note.importance:
+    displayName: 重要性
+  note.status:
+    displayName: 狀態
+  note.citekey:
+    displayName: citekey
+  note.topic:
+    displayName: 主分類
+  note.collections:
+    displayName: Zotero 分類
+views:
+  - type: cards
+    name: 卡片牆
+    order:
+      - title
+      - claim
+      - authors
+      - year
+      - importance
+      - collections
+    sort:
+      - property: year
+        direction: DESC
+    image: note.cover
+    imageAspectRatio: 1.4
+    cardSize: 280
+  - type: cards
+    name: 依分類
+    groupBy:
+      property: topic
+      direction: ASC
+    order:
+      - title
+      - claim
+      - year
+      - importance
+    sort:
+      - property: year
+        direction: DESC
+    image: note.cover
+    imageAspectRatio: 1.4
+    cardSize: 280
+  - type: cards
+    name: 待讀
+    filters:
+      and:
+        - note.status != "已讀"
+    order:
+      - title
+      - authors
+      - year
+    sort:
+      - property: year
+        direction: DESC
+    image: note.cover
+    imageAspectRatio: 1.4
+    cardSize: 280
+  - type: table
+    name: 總表
+    order:
+      - title
+      - topic
+      - year
+      - authors
+      - importance
+      - status
+      - claim
+    sort:
+      - property: year
+        direction: DESC
+  - type: cards
+    name: 範例-單一分類
+    filters:
+      and:
+        - note.collections.contains("optic neuron")
+    order:
+      - title
+      - claim
+      - year
+    sort:
+      - property: year
+        direction: DESC
+    image: note.cover
+    imageAspectRatio: 1.4
+    cardSize: 280
