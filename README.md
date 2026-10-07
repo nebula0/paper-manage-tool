@@ -41,9 +41,9 @@ Day to day you only open two apps:
 
 ---
 
-## Installation (Windows, about 30 minutes)
+## Installation (about 30 minutes)
 
-macOS works too. The steps are the same except that you use Terminal instead of PowerShell.
+Step 1 has separate instructions for Windows and macOS. Steps 2–4 are the same on both.
 
 ### What you need
 
@@ -59,13 +59,15 @@ macOS works too. The steps are the same except that you use Terminal instead of 
 | **Better BibTeX** | Zotero add-on: gives every paper a stable key (e.g. `smithThermalTuning2023`). File names and links use it, and you can use it for LaTeX citations | ❌ Set it up once and forget it |
 | **Obsidian** | Note-taking app: shows the organized database (tables, card wall, paper pages). You can also write your own notes | ✅ Daily |
 | **Claudian** | Obsidian plugin: adds a chat panel on the right where you talk to Claude | ✅ Daily: talking to Claude |
-| **Claude Code** | Claude's agent program. It does the actual work: searching, reading PDFs, writing notes, maintaining the database. Claudian calls it in the background | ❌ Used once in PowerShell to log in, then never opened |
+| **Claude Code** | Claude's agent program. It does the actual work: searching, reading PDFs, writing notes, maintaining the database. Claudian calls it in the background | ❌ Used once in PowerShell (Windows) or Terminal (macOS) to log in, then never opened |
 | **Python** | Programming language. The plugin's tools (reading Zotero, rebuilding the database, adding highlights) are Python scripts | ❌ Claude runs them; you don't need to learn Python |
-| **Git for Windows** | Claude Code needs it to run commands on Windows | ❌ Install once and forget it |
+| **Git for Windows** | Windows only. Claude Code needs it to run commands on Windows | ❌ Install once and forget it |
 
 ### Step 1: Install the software
 
-Install in this order, and skip anything you already have:
+Install in this order, and skip anything you already have.
+
+#### Windows
 
 1. **Git for Windows**: https://git-scm.com/downloads/win (keep all default options)
 2. **Python**: https://www.python.org/downloads/
@@ -82,6 +84,25 @@ Install in this order, and skip anything you already have:
       ```
    3. Type `claude`, press Enter, and follow the prompts to log in to your Claude account.
    4. When you reach the input prompt, the login worked. Type `/exit` and close PowerShell.
+
+#### macOS
+
+1. **Python**: download the macOS installer from https://www.python.org/downloads/ and run it.
+   When it finishes, a Finder window opens. Double-click **Install Certificates.command** in it (this lets Python make secure connections).
+   (macOS has a built-in `python3`, but it may be too old. The python.org version avoids problems.)
+2. **Zotero 7** and the browser **Zotero Connector**: https://www.zotero.org/download/
+3. **Better BibTeX**:
+   Download the `.xpi` file from https://retorque.re/zotero-better-bibtex/installation/ → in Zotero, Tools → Plugins → gear icon (top right) → Install Plugin From File
+   (If Safari unzips the `.xpi` automatically, download it with Chrome or Firefox instead.)
+4. **Obsidian**: https://obsidian.md/download
+5. **Claude Code**. You only need Terminal here and when saving your API key in Step 4:
+   1. Press `Cmd+Space`, type "Terminal" and open it.
+   2. Paste this line, press Enter and wait for the install to finish:
+      ```
+      curl -fsSL https://claude.ai/install.sh | bash
+      ```
+   3. Type `claude`, press Enter, and follow the prompts to log in to your Claude account. (If it says `command not found`, close Terminal, open a new window and try again.)
+   4. When you reach the input prompt, the login worked. Type `/exit` and close Terminal.
 
 ### Step 2: Create your vault and install Claudian
 
@@ -111,7 +132,7 @@ In the Claudian panel, say:
 
 Claude walks you through the rest one step at a time: checking Python and Zotero, saving your Zotero API key, creating the folders, describing your research topic and tag vocabulary, and configuring Obsidian. Partway through it asks you to restart Obsidian. After the restart, open Claudian and say "continue setting up lit-tools".
 
-> 🔑 **An API key is a password.** During setup Claude gives you a one-line PowerShell command that saves the key straight to your computer. **Never paste the key into the chat.**
+> 🔑 **An API key is a password.** During setup Claude gives you a one-line command to paste into PowerShell (Windows) or Terminal (macOS); it saves the key straight to your computer. **Never paste the key into the chat.**
 
 ---
 
@@ -187,7 +208,7 @@ Open `2_paper/文獻庫.base` (the literature database) and switch views in the 
 | 候選與排除 (Candidates & excluded) | Papers Claude found that you haven't decided on, plus the ones you excluded |
 | 本團隊 (Our lab) | Papers by your advisor or collaborators |
 
-To turn your Zotero highlights into a reading card: in Obsidian press `Ctrl+P` → "Zotero Integration: 文獻卡片" → choose the paper.
+To turn your Zotero highlights into a reading card: in Obsidian press `Ctrl+P` (macOS: `Cmd+P`) → "Zotero Integration: 文獻卡片" → choose the paper.
 
 ⚠️ **Don't edit the pages in `2_paper/文獻庫/` or `2_paper/任務/` by hand.** The scripts generate them, and the next rebuild overwrites your changes. Tell Claude what you want changed, and keep your own thoughts in Zotero notes or the reading cards.
 
@@ -215,10 +236,16 @@ Back up the `research-notes` folder with Git or a cloud drive. `文獻庫資料/
 ## FAQ
 
 **Q: Claudian says it can't find Claude Code.**
-Claudian doesn't know where the Claude Code program is. Open PowerShell, run `where.exe claude`, copy the path it prints, and paste it into the Claude CLI path field under Obsidian Settings → Claudian.
+Claudian doesn't know where the Claude Code program is. Find the path, then paste it into the Claude CLI path field under Obsidian Settings → Claudian:
+- Windows: open PowerShell and run `where.exe claude`
+- macOS: open Terminal and run `which claude` (usually `/Users/<you>/.local/bin/claude`)
 
 **Q: Claude says it can't find Python.**
-"Add python.exe to PATH" wasn't checked during installation. Run the installer again, choose Modify and check it (or uninstall and reinstall), then restart Obsidian.
+- Windows: "Add python.exe to PATH" wasn't checked during installation. Run the installer again, choose Modify and check it (or uninstall and reinstall), then restart Obsidian.
+- macOS: install Python from python.org (see Step 1), then quit Obsidian completely (`Cmd+Q`) and reopen it.
+
+**Q: On macOS, searches fail with a certificate error (`CERTIFICATE_VERIFY_FAILED`).**
+Open Finder → Applications → the Python 3.x folder, and double-click **Install Certificates.command**.
 
 **Q: Grey highlights fail with "attachment not found".**
 That paper's PDF attachment hasn't synced to zotero.org yet. Click the sync button at the top right of Zotero, wait for it to finish, and try again.

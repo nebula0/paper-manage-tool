@@ -39,7 +39,9 @@
 
 ---
 
-## 安裝（Windows，約 30 分鐘）
+## 安裝（約 30 分鐘）
+
+第 1 步分成 Windows 和 macOS 兩種做法，第 2～4 步兩邊都一樣。
 
 ### 需要的東西
 
@@ -55,13 +57,15 @@
 | **Better BibTeX** | Zotero 的外掛：給每篇文章一個固定代碼（例如 `smithThermalTuning2023`），檔名和連結都用它；寫 LaTeX 時也能用來引用 | ❌ 裝好就不用管 |
 | **Obsidian** | 筆記軟體：用來看整理好的文獻庫（表格、卡片牆、文章頁），也可以寫自己的筆記 | ✅ 每天用 |
 | **Claudian** | Obsidian 的外掛：在 Obsidian 右側開一個聊天面板，讓你在這裡跟 Claude 說話 | ✅ 每天用：跟 Claude 說話 |
-| **Claude Code** | Claude 的 AI 助理程式，真正做事的是它：搜尋、讀 PDF、寫筆記、整理文獻庫。Claudian 會在背景呼叫它 | ❌ 只在安裝時用一次 PowerShell 登入，之後不用打開 |
+| **Claude Code** | Claude 的 AI 助理程式，真正做事的是它：搜尋、讀 PDF、寫筆記、整理文獻庫。Claudian 會在背景呼叫它 | ❌ 只在安裝時用一次 PowerShell（Windows）或終端機（macOS）登入，之後不用打開 |
 | **Python** | 程式語言：外掛的工具程式（讀 Zotero、重建文獻庫、畫標註）是用 Python 寫的 | ❌ Claude 會自己執行，你不用學 |
-| **Git for Windows** | Claude Code 在 Windows 上執行指令需要它 | ❌ 裝好就不用管 |
+| **Git for Windows** | 只有 Windows 要裝。Claude Code 在 Windows 上執行指令需要它 | ❌ 裝好就不用管 |
 
 ### 第 1 步：安裝軟體
 
-照順序安裝，已經裝過的就跳過：
+照順序安裝，已經裝過的就跳過。
+
+#### Windows
 
 1. **Git for Windows**：https://git-scm.com/downloads/win（安裝選項全部用預設）
 2. **Python**：https://www.python.org/downloads/
@@ -78,6 +82,25 @@
       ```
    3. 輸入 `claude` 按 Enter，照畫面登入你的 Claude 帳號。
    4. 看到可以輸入的畫面就代表登入成功，輸入 `/exit` 離開，關掉 PowerShell。之後都不用再開。
+
+#### macOS
+
+1. **Python**：到 https://www.python.org/downloads/ 下載 macOS 安裝檔並安裝。
+   裝完會跳出一個 Finder 視窗，雙擊裡面的 **Install Certificates.command**（讓 Python 能安全連線）。
+   （macOS 內建的 `python3` 可能版本太舊，用 python.org 的版本比較不會出問題。）
+2. **Zotero 7**＋瀏覽器的 **Zotero Connector**：https://www.zotero.org/download/
+3. **Better BibTeX**：
+   到 https://retorque.re/zotero-better-bibtex/installation/ 下載 `.xpi` 檔 → Zotero「工具」→「外掛程式」→ 右上角齒輪 →「從檔案安裝外掛」
+   （如果 Safari 自動把 `.xpi` 解壓縮了，改用 Chrome 或 Firefox 下載。）
+4. **Obsidian**：https://obsidian.md/download
+5. **Claude Code**（要用終端機的地方只有這裡，和第 4 步存金鑰時貼一行指令）：
+   1. 按 `Cmd+空白鍵`，輸入「終端機」並打開。
+   2. 貼上下面這行，按 Enter，等它裝完：
+      ```
+      curl -fsSL https://claude.ai/install.sh | bash
+      ```
+   3. 輸入 `claude` 按 Enter，照畫面登入你的 Claude 帳號。（如果出現 `command not found`，關掉終端機、開一個新視窗再試一次。）
+   4. 看到可以輸入的畫面就代表登入成功，輸入 `/exit` 離開，關掉終端機。之後都不用再開。
 
 ### 第 2 步：建立筆記庫並裝 Claudian
 
@@ -107,7 +130,7 @@
 
 Claude 會一步一步帶你完成：檢查 Python 和 Zotero、存 Zotero 金鑰、建立資料夾、填你的研究主題與分類標籤、設定 Obsidian。中間會請你重開一次 Obsidian，重開後打開 Claudian 說「繼續設定 lit-tools」。
 
-> 🔑 **金鑰等於密碼**：設定時 Claude 會給你一行指令，讓你在 PowerShell 把金鑰直接存進電腦。**不要把金鑰貼進對話。**
+> 🔑 **金鑰等於密碼**：設定時 Claude 會給你一行指令，貼到 PowerShell（Windows）或終端機（macOS），把金鑰直接存進電腦。**不要把金鑰貼進對話。**
 
 ---
 
@@ -183,7 +206,7 @@ Claude 會更新文章頁，並幫新文章讀摘要、寫主要貢獻、分類�
 | 候選與排除 | Claude 找到但還沒決定、或已排除的 |
 | 本團隊 | 作者有你的指導教授或合作對象的 |
 
-把 Zotero 畫記匯成閱讀卡：Obsidian 按 `Ctrl+P` →「Zotero Integration: 文獻卡片」→ 選文章。
+把 Zotero 畫記匯成閱讀卡：Obsidian 按 `Ctrl+P`（macOS 是 `Cmd+P`） →「Zotero Integration: 文獻卡片」→ 選文章。
 
 ⚠️ **`2_paper/文獻庫/` 和 `2_paper/任務/` 裡的頁面不要手動編輯**，它們是程式產生的，下次重建會被覆蓋。想改什麼跟 Claude 說；自己的想法寫在 Zotero 筆記或閱讀卡。
 
@@ -211,10 +234,16 @@ Claude 會更新文章頁，並幫新文章讀摘要、寫主要貢獻、分類�
 ## 常見問題
 
 **Q：Claudian 說找不到 Claude Code。**
-Claudian 找不到 Claude Code 程式的位置。打開 PowerShell 輸入 `where.exe claude`，把顯示的路徑複製起來，貼到 Obsidian「設定」→「Claudian」裡的 Claude CLI 路徑欄位。
+Claudian 找不到 Claude Code 程式的位置。先找出路徑，再貼到 Obsidian「設定」→「Claudian」裡的 Claude CLI 路徑欄位：
+- Windows：打開 PowerShell 輸入 `where.exe claude`
+- macOS：打開終端機輸入 `which claude`（通常是 `/Users/你的帳號/.local/bin/claude`）
 
 **Q：Claude 說找不到 Python。**
-安裝 Python 時沒勾「Add python.exe to PATH」。重新執行安裝程式選「Modify」補勾，或解除安裝後重裝，然後重開 Obsidian。
+- Windows：安裝 Python 時沒勾「Add python.exe to PATH」。重新執行安裝程式選「Modify」補勾，或解除安裝後重裝，然後重開 Obsidian。
+- macOS：照第 1 步從 python.org 安裝 Python，然後完全關掉 Obsidian（`Cmd+Q`）再重開。
+
+**Q：macOS 上搜尋時出現憑證錯誤（`CERTIFICATE_VERIFY_FAILED`）。**
+打開 Finder →「應用程式」→ Python 3.x 資料夾，雙擊 **Install Certificates.command**。
 
 **Q：灰色標註寫不進去，說找不到附件。**
 那篇的 PDF 附件還沒同步到 zotero.org。在 Zotero 按右上角的同步按鈕，等它同步完再試。
