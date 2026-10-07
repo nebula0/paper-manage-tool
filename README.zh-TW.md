@@ -8,15 +8,7 @@
 
 <!-- TODO: 示範 GIF，例如 ![demo](docs/demo.gif) -->
 
-### 為什麼說是「LLM wiki」？
-
-Andrej Karpathy 提出的 [LLM Wiki 構想](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)是：不要每次都讓 AI 從原始文件重新搜尋，而是讓它在原始資料之上建立並持續維護一份 markdown wiki。lit-tools 就是把這個做法用在學術文獻上：
-
-| LLM Wiki 的層次 | 在 lit-tools 裡 |
-|---|---|
-| 原始資料（不改動） | **Zotero** 裡的 PDF 和你的畫記 |
-| Wiki（AI 維護的 markdown） | **Obsidian** vault：一篇論文一頁、一次搜尋一頁、每篇論文一份累積所有問答的 AI 筆記 |
-| 規則（約束 AI 的做法） | skill 與程式強制要求來源：書目只從 **OpenAlex** 抓（不會有編造的 DOI），回答一律附頁碼 |
+這個做法來自 Andrej Karpathy 的 [LLM Wiki 構想](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)，lit-tools 把它用在學術文獻上。
 
 適合正在做**文獻回顧**、本來就用（或想開始用）Zotero 和 Obsidian、想要一個「做的事情都查得到依據」的 AI 研究助理的研究生與研究者。
 

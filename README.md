@@ -10,15 +10,7 @@ A [Claude Code](https://claude.com/claude-code) plugin that turns your Zotero li
 
 > **Language note:** the plugin was built for Traditional Chinese users, so generated pages, folder names and record fields are currently in Chinese. You can talk to Claude in English and it answers in English. A full English version is planned; if you'd use it, please open an issue so I know.
 
-### Why "LLM wiki"?
-
-Andrej Karpathy's [LLM Wiki idea](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) describes a pattern where an LLM doesn't re-search raw documents every time, but builds and maintains a persistent markdown wiki on top of them. lit-tools is that pattern applied to academic literature:
-
-| LLM Wiki layer | In lit-tools |
-|---|---|
-| Raw sources (immutable) | PDFs and your highlights in **Zotero** |
-| Wiki (LLM-maintained markdown) | **Obsidian** vault: one page per paper, one page per search task, an AI note per paper that accumulates every Q&A |
-| Schema (rules for the agent) | Skills and scripts that enforce sourcing: bibliographic data only from **OpenAlex** (no hallucinated DOIs), every answer cites pages |
+It follows Andrej Karpathy's [LLM Wiki idea](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f), applied to academic literature.
 
 Good fit if you are a grad student or researcher doing a **literature review**, already use (or want to use) Zotero and Obsidian, and want an AI research assistant whose work you can check.
 
