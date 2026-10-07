@@ -13,7 +13,7 @@ description: 文獻管理系統的 AI 工作指令。凡是搜尋或加入文獻
 - Python 指令：Windows 用 `python`，macOS／Linux 用 `python3`。
 - 以下 `L` 代表 `python "${CLAUDE_PLUGIN_ROOT}/scripts/litlib.py"`。**從使用者的 vault 根目錄執行**（腳本會往上找 `2_paper/文獻庫資料` 或 `.obsidian` 來定位 vault）。
 - 研究主題、本團隊名單、標籤詞表在 `2_paper/文獻庫資料/設定.json`。判斷相關性前先讀「研究主題」。
-- 找不到 `2_paper/文獻庫資料/設定.json`：使用者還沒設定，請他先用 `lit-setup` skill 設定（或跟 Claude 說「設定 lit-tools」）。
+- 找不到 `2_paper/文獻庫資料/設定.json`：使用者還沒設定，請他先用 `lit-setup` skill 設定（或跟 Claude 說「設定 zotero-llm-wiki」）。
 
 ## 通用規則
 

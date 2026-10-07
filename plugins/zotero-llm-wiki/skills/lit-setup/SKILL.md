@@ -1,9 +1,9 @@
 ---
 name: lit-setup
-description: lit-tools 第一次使用的設定精靈：檢查 Python／Zotero／Better BibTeX、存放金鑰、建立文獻庫資料夾、填研究主題與標籤詞表。使用者說「設定 lit-tools」「第一次使用」「安裝文獻工具」，或 lit-library／lit-reading 發現還沒設定時使用。
+description: zotero-llm-wiki（舊名 lit-tools）第一次使用的設定精靈：檢查 Python／Zotero／Better BibTeX、存放金鑰、建立文獻庫資料夾、填研究主題與標籤詞表。使用者說「設定 zotero-llm-wiki」「設定 lit-tools」「第一次使用」「安裝文獻工具」，或 lit-library／lit-reading 發現還沒設定時使用。
 ---
 
-# lit-tools 設定精靈
+# zotero-llm-wiki 設定精靈
 
 帶使用者一步一步完成設定。每一步先檢查，已經好的就跳過、簡短回報；缺的才請使用者動手，**一次只給一個動作**，等使用者回覆再繼續。用繁體中文、口語、步驟編號。最後給一份「✅／❌」總表。
 

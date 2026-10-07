@@ -16,7 +16,7 @@ tools: WebSearch, WebFetch, Read, Grep, Glob, Bash
 ## 開始前
 
 - 先讀 `2_paper/文獻庫資料/設定.json` 的「研究主題」與「標籤詞表」。
-- 工具：`L` 代表 `python "${CLAUDE_PLUGIN_ROOT}/scripts/litlib.py"`（macOS／Linux 用 `python3`），從 vault 根目錄執行。路徑沒被替換時，用 Glob 找 `**/lit-tools/**/scripts/litlib.py`（在 `~/.claude/plugins/` 底下）。
+- 工具：`L` 代表 `python "${CLAUDE_PLUGIN_ROOT}/scripts/litlib.py"`（macOS／Linux 用 `python3`），從 vault 根目錄執行。路徑沒被替換時，用 Glob 找 `**/zotero-llm-wiki/**/scripts/litlib.py`（在 `~/.claude/plugins/` 底下）。
 - 呼叫者會給你：**任務代號**、搜尋目標（起點 DOI 清單、收錄標準）、**批次檔路徑**。沒有給起點 DOI 或明確的收錄標準時，先問清楚，不要自己擴大範圍。
 
 ## 步驟

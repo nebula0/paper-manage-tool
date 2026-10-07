@@ -1,4 +1,4 @@
-# lit-tools：你的論文專屬 LLM wiki，讓 Claude 幫你讀論文、整理文獻
+# zotero-llm-wiki：你的論文專屬 LLM wiki，讓 Claude 幫你讀論文、整理文獻
 
 **Zotero + Obsidian + Claude Code** · 搜尋文獻 · 讀 PDF 並附頁碼回答 · 自動更新的文獻庫
 
@@ -8,7 +8,7 @@
 
 <!-- TODO: 示範 GIF，例如 ![demo](docs/demo.gif) -->
 
-這個做法來自 Andrej Karpathy 的 [LLM Wiki 構想](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)，lit-tools 把它用在學術文獻上。
+這個做法來自 Andrej Karpathy 的 [LLM Wiki 構想](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)，zotero-llm-wiki 把它用在學術文獻上。
 
 適合正在做**文獻回顧**、本來就用（或想開始用）Zotero 和 Obsidian、想要一個「做的事情都查得到依據」的 AI 研究助理的研究生與研究者。
 
@@ -31,7 +31,7 @@
 你：在 Zotero 存文章、畫重點          你：跟 Claude 說話
         │                                     │
         ▼                                     ▼
-   Zotero（PDF＋畫記）  ◀── 讀取、寫灰色標註 ──  Claude Code ＋ lit-tools
+   Zotero（PDF＋畫記）  ◀── 讀取、寫灰色標註 ──  Claude Code ＋ zotero-llm-wiki
         │                                     │
         └──────────────┬──────────────────────┘
                        ▼  自動重建
@@ -121,22 +121,22 @@
 ### 第 3 步：請 Claude 安裝外掛
 
 1. 在 Claudian 面板裡說：
-   > 幫我安裝 Claude Code 外掛：執行 `claude plugin marketplace add nebula0/paper-manage-tool`，再執行 `claude plugin install lit-tools@lit-tools-market`
+   > 幫我安裝 Claude Code 外掛：執行 `claude plugin marketplace add nebula0/zotero-llm-wiki`，再執行 `claude plugin install zotero-llm-wiki@zotero-llm-wiki`
 2. Claude 說安裝成功後，**完全關掉 Obsidian 再重開**，讓外掛生效。
 
 <details>
 <summary>不能連 GitHub？用壓縮檔安裝</summary>
 
-在本頁右上角「Code」→「Download ZIP」下載，解壓縮放在固定的地方（例如 `C:\Users\你的名字\lit-tools`，之後不要移動），把上面指令裡的 `nebula0/paper-manage-tool` 換成這個資料夾路徑（前後加引號）。
+在本頁右上角「Code」→「Download ZIP」下載，解壓縮放在固定的地方（例如 `C:\Users\你的名字\zotero-llm-wiki`，之後不要移動），把上面指令裡的 `nebula0/zotero-llm-wiki` 換成這個資料夾路徑（前後加引號）。
 </details>
 
 ### 第 4 步：跑設定精靈
 
 在 Claudian 面板裡說：
 
-> 設定 lit-tools
+> 設定 zotero-llm-wiki
 
-Claude 會一步一步帶你完成：檢查 Python 和 Zotero、存 Zotero 金鑰、建立資料夾、填你的研究主題與分類標籤、設定 Obsidian。中間會請你重開一次 Obsidian，重開後打開 Claudian 說「繼續設定 lit-tools」。
+Claude 會一步一步帶你完成：檢查 Python 和 Zotero、存 Zotero 金鑰、建立資料夾、填你的研究主題與分類標籤、設定 Obsidian。中間會請你重開一次 Obsidian，重開後打開 Claudian 說「繼續設定 zotero-llm-wiki」。
 
 > 🔑 **金鑰等於密碼**：設定時 Claude 會給你一行指令，貼到 PowerShell（Windows）或終端機（macOS），把金鑰直接存進電腦。**不要把金鑰貼進對話。**
 
@@ -263,7 +263,7 @@ Better BibTeX 沒裝好，或那篇還沒產生代碼。在 Zotero 對那篇按�
 跟 Claude 說「標籤詞表加一個 topic/xxx，意思是……」，它會更新 `設定.json`。
 
 **Q：外掛有新版本。**
-在 Claudian 說「幫我更新 lit-tools 外掛：執行 `claude plugin marketplace update lit-tools-market`，再執行 `claude plugin update lit-tools@lit-tools-market`」，然後重開 Obsidian。（用壓縮檔安裝的，先用新下載的資料夾取代舊的。）
+在 Claudian 說「幫我更新 zotero-llm-wiki 外掛：執行 `claude plugin marketplace update zotero-llm-wiki`，再執行 `claude plugin update zotero-llm-wiki@zotero-llm-wiki`」，然後重開 Obsidian。（用壓縮檔安裝的，先用新下載的資料夾取代舊的。）
 
 **Q：會不會很貴？**
 用的是你自己 Claude 訂閱的額度，沒有額外費用。精讀整篇論文比較耗額度，平常問特定段落就好。
@@ -272,7 +272,7 @@ Better BibTeX 沒裝好，或那篇還沒產生代碼。在 Zotero 對那篇按�
 
 ## 歡迎回饋
 
-這是一個碩士生自己做的專案，很想聽聽你的使用心得：哪裡好用、安裝卡在哪、希望它多做什麼。歡迎開 [issue](https://github.com/nebula0/paper-manage-tool/issues)，覺得這個想法有用的話也可以按個 ⭐。
+這是一個碩士生自己做的專案，很想聽聽你的使用心得：哪裡好用、安裝卡在哪、希望它多做什麼。歡迎開 [issue](https://github.com/nebula0/zotero-llm-wiki/issues)，覺得這個想法有用的話也可以按個 ⭐。
 
 ---
 

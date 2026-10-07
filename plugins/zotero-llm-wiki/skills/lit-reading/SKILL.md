@@ -56,7 +56,7 @@ description: 讀文獻的 AI 工作指令。凡是使用者問某篇論文的內
 3. 寫入：同一行加 `--send`。記下回傳的標註代號，寫進 AI 筆記。
 4. 刪除自己的標註：`A delete <標註代號>... --send`（腳本只刪得掉灰色）。
 
-需要 Zotero API 金鑰（`~/.config/zotero/api_key`）；沒有就請使用者用 `lit-setup` skill 設定（或跟 Claude 說「設定 lit-tools」）。附件要已同步到 zotero.org，網路 API 才找得到。
+需要 Zotero API 金鑰（`~/.config/zotero/api_key`）；沒有就請使用者用 `lit-setup` skill 設定（或跟 Claude 說「設定 zotero-llm-wiki」）。附件要已同步到 zotero.org，網路 API 才找得到。
 
 ### 4.2 AI 筆記
 

@@ -1,6 +1,6 @@
-"""lit-tools 共用設定：路徑、金鑰、跨平台（Windows／macOS／Linux）處理。其他腳本 import 這個檔。
+"""zotero-llm-wiki 共用設定：路徑、金鑰、跨平台（Windows／macOS／Linux）處理。其他腳本 import 這個檔。
 
-設定檔 ~/.config/lit-tools/config.json（由 lit-setup（跟 Claude 說「設定 lit-tools」） 建立，全部選填）：
+設定檔 ~/.config/lit-tools/config.json（由 lit-setup（跟 Claude 說「設定 zotero-llm-wiki」） 建立，全部選填）：
   {"zotero_dir": "C:/Users/me/Zotero", "zotero_user_id": "1234567", "vault": "C:/Users/me/Documents/research"}
 金鑰：~/.config/zotero/api_key、~/.config/openalex/api_key（純文字一行）。
 """

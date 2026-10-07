@@ -65,7 +65,7 @@ tags:
   "Black": "其他",
   "White": "其他"
 } %}
-{#- 灰色保留給 AI 標註（規範見 lit-tools 外掛 skills/lit-library/規則.md §5.2），不放進人類分區 #}
+{#- 灰色保留給 AI 標註（規範見 zotero-llm-wiki 外掛 skills/lit-library/規則.md §5.2），不放進人類分區 #}
 {%- for color, items in (annotations or []) | groupby("colorCategory") %}
 {%- if color != "Gray" %}
 

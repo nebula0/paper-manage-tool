@@ -1,4 +1,4 @@
-# lit-tools: an LLM wiki for your research papers
+# zotero-llm-wiki: an LLM wiki for your research papers
 
 **Zotero + Obsidian + Claude Code** · literature search · PDF reading with page-cited answers · self-updating literature database
 
@@ -33,7 +33,7 @@ Good fit if you are a grad student or researcher doing a **literature review**, 
 You: save papers and highlight in Zotero      You: talk to Claude
         │                                            │
         ▼                                            ▼
-   Zotero (PDFs + highlights)  ◀── reads, adds grey highlights ──  Claude Code + lit-tools
+   Zotero (PDFs + highlights)  ◀── reads, adds grey highlights ──  Claude Code + zotero-llm-wiki
         │                                            │
         └─────────────────┬──────────────────────────┘
                           ▼  rebuilt automatically
@@ -123,22 +123,22 @@ Install in this order, and skip anything you already have.
 ### Step 3: Ask Claude to install the plugin
 
 1. In the Claudian panel, say:
-   > Install a Claude Code plugin for me: run `claude plugin marketplace add nebula0/paper-manage-tool`, then run `claude plugin install lit-tools@lit-tools-market`
+   > Install a Claude Code plugin for me: run `claude plugin marketplace add nebula0/zotero-llm-wiki`, then run `claude plugin install zotero-llm-wiki@zotero-llm-wiki`
 2. When Claude reports success, **quit Obsidian completely and reopen it** so the plugin loads.
 
 <details>
 <summary>Can't reach GitHub? Install from a ZIP</summary>
 
-On this page, click Code → Download ZIP. Unzip it somewhere permanent (e.g. `C:\Users\you\lit-tools`, and don't move it afterwards). In the command above, replace `nebula0/paper-manage-tool` with that folder path, in quotes.
+On this page, click Code → Download ZIP. Unzip it somewhere permanent (e.g. `C:\Users\you\zotero-llm-wiki`, and don't move it afterwards). In the command above, replace `nebula0/zotero-llm-wiki` with that folder path, in quotes.
 </details>
 
 ### Step 4: Run the setup wizard
 
 In the Claudian panel, say:
 
-> Set up lit-tools
+> Set up zotero-llm-wiki
 
-Claude walks you through the rest one step at a time: checking Python and Zotero, saving your Zotero API key, creating the folders, describing your research topic and tag vocabulary, and configuring Obsidian. Partway through it asks you to restart Obsidian. After the restart, open Claudian and say "continue setting up lit-tools".
+Claude walks you through the rest one step at a time: checking Python and Zotero, saving your Zotero API key, creating the folders, describing your research topic and tag vocabulary, and configuring Obsidian. Partway through it asks you to restart Obsidian. After the restart, open Claudian and say "continue setting up zotero-llm-wiki".
 
 > 🔑 **An API key is a password.** During setup Claude gives you a one-line command to paste into PowerShell (Windows) or Terminal (macOS); it saves the key straight to your computer. **Never paste the key into the chat.**
 
@@ -265,7 +265,7 @@ Better BibTeX isn't installed correctly, or that paper doesn't have a key yet. I
 Tell Claude something like "add topic/xxx to the tag vocabulary, meaning …". It updates `設定.json`.
 
 **Q: How do I update the plugin?**
-In Claudian, say "update the lit-tools plugin: run `claude plugin marketplace update lit-tools-market`, then `claude plugin update lit-tools@lit-tools-market`", then restart Obsidian. (If you installed from a ZIP, replace the old folder with a fresh download first.)
+In Claudian, say "update the zotero-llm-wiki plugin: run `claude plugin marketplace update zotero-llm-wiki`, then `claude plugin update zotero-llm-wiki@zotero-llm-wiki`", then restart Obsidian. (If you installed from a ZIP, replace the old folder with a fresh download first.)
 
 **Q: Does it cost extra?**
 No. It uses your own Claude subscription. Reading a whole paper closely uses more of your quota, so for everyday questions, ask about specific sections.
@@ -274,7 +274,7 @@ No. It uses your own Claude subscription. Reading a whole paper closely uses mor
 
 ## Feedback wanted
 
-This is a solo project from a master's student, and I'd love to hear from you: what worked, what broke during installation, what you wish it did. Open an [issue](https://github.com/nebula0/paper-manage-tool/issues), or just leave a ⭐ if you find the idea useful.
+This is a solo project from a master's student, and I'd love to hear from you: what worked, what broke during installation, what you wish it did. Open an [issue](https://github.com/nebula0/zotero-llm-wiki/issues), or just leave a ⭐ if you find the idea useful.
 
 ---
 

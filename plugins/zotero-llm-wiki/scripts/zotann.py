@@ -28,7 +28,7 @@ def pdf_path(att):
 
 def api_key():
     k = read_key("zotero")
-    if not k: sys.exit("找不到 Zotero API 金鑰 ~/.config/zotero/api_key，請先執行 lit-setup（跟 Claude 說「設定 lit-tools」）")
+    if not k: sys.exit("找不到 Zotero API 金鑰 ~/.config/zotero/api_key，請先執行 lit-setup（跟 Claude 說「設定 zotero-llm-wiki」）")
     return k
 
 def user_id():
@@ -41,7 +41,7 @@ def user_id():
         with urllib.request.urlopen(req, context=SSL_CTX) as r:
             uid = str(json.load(r)["userID"])
     except urllib.error.HTTPError as e:
-        sys.exit(f"Zotero 金鑰無效（{e.code}），請重新執行 lit-setup（跟 Claude 說「設定 lit-tools」）")
+        sys.exit(f"Zotero 金鑰無效（{e.code}），請重新執行 lit-setup（跟 Claude 說「設定 zotero-llm-wiki」）")
     save_setting("zotero_user_id", uid)
     return uid
 
