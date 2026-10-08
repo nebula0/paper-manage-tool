@@ -51,6 +51,8 @@ Day to day you only open two apps:
 
 ## Installation
 
+> 💡 **No release download needed.** This is a Claude Code plugin: the command in Step 3 installs it straight from GitHub. Just follow the steps below.
+
 Step 1 has separate instructions for Windows and macOS. Steps 2–4 are the same on both.
 
 ### What you need
