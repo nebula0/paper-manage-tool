@@ -1,20 +1,78 @@
 # zotero-llm-wiki：你的論文專屬 LLM wiki，讓 Claude 幫你讀論文、整理文獻
 
-**Zotero + Obsidian + Claude Code** · 搜尋文獻 · 讀 PDF 並附頁碼回答 · 自動更新的文獻庫
+**Claude Code + Zotero** · 問論文內容，附頁碼回答 · 搜尋文獻 · Obsidian 裡自動更新的文獻庫
 
 [English](README.md) ｜ **繁體中文**
 
-這是給 [Claude Code](https://claude.com/claude-code) 用的外掛，把你的 Zotero 文獻變成一個**由 AI 維護、放在 Obsidian 裡的 wiki**。裝好之後，你可以在 Obsidian 裡直接跟 Claude 說「幫我找 ○○ 的文獻」、「這篇的實驗怎麼做的？」，Claude 會去搜尋、讀你 Zotero 裡的 PDF，回答附頁碼與原句，再把結果整理成一個會自動更新的文獻庫。
+一組讓 [Claude Code](https://claude.com/claude-code) 處理你 Zotero 文獻的工具：Claude 會讀你的 PDF，回答附頁碼與原句；搜尋文獻時，書目一律從 OpenAlex 查證；完整版還會把結果整理成 Obsidian 裡一個會自動更新的文獻庫。
 
 <!-- TODO: 示範 GIF，例如 ![demo](docs/demo.gif) -->
 
-這個做法來自 Andrej Karpathy 的 [LLM Wiki 構想](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)，zotero-llm-wiki 把它用在學術文獻上。
-
-適合正在做**文獻回顧**、本來就用（或想開始用）Zotero 和 Obsidian、想要一個「做的事情都查得到依據」的 AI 研究助理的研究生與研究者。
+這個做法來自 Andrej Karpathy 的 [LLM Wiki 構想](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)，用在學術文獻上。適合正在做**文獻回顧**、想要一個「做的事情都查得到依據」的 AI 研究助理的研究生與研究者。
 
 ---
 
-## 它解決什麼問題
+## 選一條路開始
+
+可以先從簡單的開始，需要更多功能再往上換。三條路用的是同一套 Zotero 設定。
+
+| | Claude 會做什麼 | 需要什麼 | 怎麼安裝 |
+|---|---|---|---|
+| **1. [zotero-ask](#主線-1zotero-ask問-zotero-裡的論文)** | 讀你 Zotero 裡的 PDF，附頁碼與原句回答，在 PDF 上畫灰色標註，你要的話存成筆記 | Zotero、Python | 下載 zip |
+| **2. [paper-search](#主線-2paper-search找文獻)** | 用 OpenAlex 搜尋論文，標出你已經有的，把你選的加進 Zotero | Zotero、Python | 下載 zip（即將推出） |
+| **3. [zotero-llm-wiki](#主線-3完整版-zotero-llm-wiki)**（完整版） | 以上全部，再加上 Obsidian 文獻庫：一篇一頁、搜尋紀錄、閱讀進度、AI 筆記 | Zotero、Better BibTeX、Obsidian、Python | Claude Code 外掛 |
+
+三條路都需要 Claude 付費訂閱（Pro 或 Max）和 Claude Code。還沒裝 Claude Code 的話，[第 1 步](#第-1-步安裝軟體)裡有安裝方法。
+
+完整版已經包含 zotero-ask 的所有功能，兩個裝一個就好，不要同時裝。
+
+---
+
+## 主線 1：zotero-ask，問 Zotero 裡的論文
+
+問 Claude 你 Zotero 裡任何一篇論文。它會找到 PDF、讀相關的頁面，回答附頁碼與原句。它不會上網搜尋，也不會憑記憶回答：論文不在 Zotero 裡，它會請你先加進去。
+
+- **灰色標註**：設定好 Zotero API 金鑰後，Claude 會把引用的段落在 PDF 上畫成灰色，你在 Zotero 裡就能對照原文。
+- **筆記，需要才存**：說一次「存成筆記」，或說「以後都把筆記存到 ○○ 資料夾」，每次回答都會存成 Markdown 檔。
+- **跟著你的語言**：用中文問就用中文答，用英文問就用英文答。
+
+**安裝**
+
+1. 下載 [zotero-ask.zip](https://github.com/nebula0/zotero-llm-wiki/releases/latest/download/zotero-ask.zip)，存到「下載」資料夾。
+2. 解壓縮到 Claude Code 的 skills 資料夾：
+   - macOS（終端機）：
+     ```
+     mkdir -p ~/.claude/skills/zotero-ask && unzip -o ~/Downloads/zotero-ask.zip -d ~/.claude/skills/zotero-ask
+     ```
+   - Windows（PowerShell）：
+     ```
+     Expand-Archive -Force "$HOME\Downloads\zotero-ask.zip" "$HOME\.claude\skills\zotero-ask"
+     ```
+   解完 `.claude/skills/zotero-ask/` 裡面應該直接看到 `SKILL.md`。
+3. 打開 Claude Code，說：
+   > 設定 zotero-ask
+
+   Claude 會檢查 Python、找到你的 Zotero 資料夾。畫灰色標註用的 API 金鑰是選用的，Claude 會打開[圖解說明](docs/zotero-api-key.md)帶你建立。
+
+**使用**
+
+> 我 Zotero 裡那篇 Smith 2023 的主要貢獻是什麼？
+
+要更新的話，重新下載 zip，再執行一次同樣的解壓縮指令。skill 資料夾裡的 `VERSION` 檔會顯示你目前的版本。
+
+---
+
+## 主線 2：paper-search，找文獻
+
+**即將推出。** paper-search 會依主題找論文，書目一律從 OpenAlex 查證，不會編造。已經在你 Zotero 裡的標 ★、你排除過的標 ✗，並把你選的論文加進 Zotero。
+
+---
+
+## 主線 3：完整版 zotero-llm-wiki
+
+這是給 Claude Code 用的外掛，把你的 Zotero 文獻變成一個**由 AI 維護、放在 Obsidian 裡的 wiki**。裝好之後，你可以在 Obsidian 裡直接跟 Claude 說「幫我找 ○○ 的文獻」、「這篇的實驗怎麼做的？」，Claude 會去搜尋、讀你 Zotero 裡的 PDF，回答附頁碼與原句，再把結果整理成一個會自動更新的文獻庫。
+
+### 它解決什麼問題
 
 | 以前 | 用了之後 |
 |---|---|
@@ -25,7 +83,7 @@
 | 和 AI 討論過的內容散在對話裡，下次就找不到 | 每篇論文有一份 AI 筆記，問答會一直累積在裡面 |
 | 不記得當初為什麼收這篇 | 每篇都記錄「為何收錄」、「主要貢獻」，以及判斷依據是全文、摘要還是只有書目 |
 
-## 它長什麼樣
+### 它長什麼樣
 
 ```
 你：在 Zotero 存文章、畫重點          你：跟 Claude 說話
@@ -47,9 +105,9 @@
 
 ---
 
-## 安裝
+## 安裝完整版
 
-> 💡 **不需要下載 release。** 這是 Claude Code 外掛，第 3 步的指令會直接從 GitHub 安裝。照下面的步驟做就好。
+> 💡 **不需要下載檔案。** 完整版是 Claude Code 外掛，第 3 步的指令會直接從 GitHub 安裝。照下面的步驟做就好。
 
 第 1 步分成 Windows 和 macOS 兩種做法，第 2～4 步兩邊都一樣。
 
@@ -140,11 +198,11 @@
 
 Claude 會一步一步帶你完成：檢查 Python 和 Zotero、存 Zotero 金鑰、建立資料夾、填你的研究主題與分類標籤、設定 Obsidian。中間會請你重開一次 Obsidian，重開後打開 Claudian 說「繼續設定 zotero-llm-wiki」。
 
-> 🔑 **金鑰等於密碼**：設定時 Claude 會給你一行指令，貼到 PowerShell（Windows）或終端機（macOS），把金鑰直接存進電腦。**不要把金鑰貼進對話。**
+> 🔑 **金鑰等於密碼**：設定時 Claude 會打開建立金鑰的[圖解說明](docs/zotero-api-key.md)，再給你一行指令，貼到 PowerShell（Windows）或終端機（macOS），把金鑰直接存進電腦。**不要把金鑰貼進對話。**
 
 ---
 
-## 日常怎麼用
+## 完整版日常怎麼用
 
 **打開 Obsidian，在右側的 Claudian 面板跟 Claude 說話。** 直接用中文說就好，不用記指令。
 
@@ -264,7 +322,10 @@ Better BibTeX 沒裝好，或那篇還沒產生代碼。在 Zotero 對那篇按�
 **Q：想改分類標籤。**
 跟 Claude 說「標籤詞表加一個 topic/xxx，意思是……」，它會更新 `設定.json`。
 
-**Q：外掛有新版本。**
+**Q：zotero-ask 和完整版可以一起裝嗎？**
+不行。完整版本來就會讀論文、畫灰色標註，兩個都裝的話，Claude 會不知道該用哪一個。換成完整版時，把 `.claude/skills/zotero-ask` 資料夾刪掉。
+
+**Q：完整版有新版本。**
 在 Claudian 說「幫我更新 zotero-llm-wiki 外掛：執行 `claude plugin marketplace update zotero-llm-wiki`，再執行 `claude plugin update zotero-llm-wiki@zotero-llm-wiki`」，然後重開 Obsidian。（用壓縮檔安裝的，先用新下載的資料夾取代舊的。）
 
 **Q：會不會很貴？**

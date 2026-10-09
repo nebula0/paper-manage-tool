@@ -1,22 +1,80 @@
 # zotero-llm-wiki: an LLM wiki for your research papers
 
-**Zotero + Obsidian + Claude Code** · literature search · PDF reading with page-cited answers · self-updating literature database
+**Claude Code + Zotero** · ask about your papers with page-cited answers · search the literature · a self-updating literature wiki in Obsidian
 
 **English** ｜ [繁體中文](README.zh-TW.md)
 
-A [Claude Code](https://claude.com/claude-code) plugin that turns your Zotero library into an **LLM-maintained wiki in Obsidian**. Ask Claude "find literature on X" or "how did this paper run the experiment?" and it searches the literature, reads the PDFs in your Zotero library, answers with page numbers and quotes, and files everything into a literature database that keeps itself up to date.
+Tools that let [Claude Code](https://claude.com/claude-code) work with the papers in your Zotero library. Claude reads your PDFs and answers with page numbers and quotes, searches the literature with bibliographic data checked against OpenAlex, and, in the full version, files everything into a literature database in Obsidian that keeps itself up to date.
 
 <!-- TODO: demo GIF here — e.g. ![demo](docs/demo.gif) -->
 
-> **Language note:** the plugin was built for Traditional Chinese users, so generated pages, folder names and record fields are currently in Chinese. You can talk to Claude in English and it answers in English. A full English version is planned; if you'd use it, please open an issue so I know.
-
-It follows Andrej Karpathy's [LLM Wiki idea](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f), applied to academic literature.
-
-Good fit if you are a grad student or researcher doing a **literature review**, already use (or want to use) Zotero and Obsidian, and want an AI research assistant whose work you can check.
+It follows Andrej Karpathy's [LLM Wiki idea](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f), applied to academic literature. Good fit if you are a grad student or researcher doing a **literature review** and want an AI research assistant whose work you can check.
 
 ---
 
-## What problems it solves
+## Choose your path
+
+Start small and move up when you need more. All three use the same Zotero setup.
+
+| | What Claude does | What you need | How to install |
+|---|---|---|---|
+| **1. [zotero-ask](#path-1-zotero-ask-ask-about-papers-in-zotero)** | Reads the PDFs in your Zotero, answers with page numbers and quotes, leaves grey highlights in the PDF, saves notes if you ask | Zotero, Python | Download a zip |
+| **2. [paper-search](#path-2-paper-search-find-literature)** | Searches OpenAlex for papers, marks the ones you already have, adds the ones you pick to Zotero | Zotero, Python | Download a zip (coming soon) |
+| **3. [zotero-llm-wiki](#path-3-the-full-zotero-llm-wiki)** (full version) | All of the above, plus a literature database in Obsidian: one page per paper, search logs, reading progress, AI notes | Zotero, Better BibTeX, Obsidian, Python | Claude Code plugin |
+
+Every path needs a paid Claude subscription (Pro or Max) and Claude Code. If you don't have Claude Code yet, the [Claude Code part of Step 1](#step-1-install-the-software) shows how to install it.
+
+The full version already includes everything zotero-ask does. Install one or the other, not both.
+
+---
+
+## Path 1: zotero-ask, ask about papers in Zotero
+
+Ask Claude about any paper in your Zotero library. It finds the PDF, reads the relevant pages and answers with page numbers and quotes. It never searches the web and never answers from memory: if the paper isn't in Zotero, it asks you to add it.
+
+- **Grey highlights:** with a Zotero API key set up, Claude highlights the passages it quoted, in grey, so you can check them in Zotero.
+- **Notes, if you want them:** say "save that as a note" once, or "always save notes to <folder>" to keep every answer as a Markdown file.
+- **Your language:** ask in English and it answers in English; ask in Chinese and it answers in Chinese.
+
+**Install**
+
+1. Download [zotero-ask.zip](https://github.com/nebula0/zotero-llm-wiki/releases/latest/download/zotero-ask.zip) to your Downloads folder.
+2. Unzip it into your Claude Code skills folder:
+   - macOS (Terminal):
+     ```
+     mkdir -p ~/.claude/skills/zotero-ask && unzip -o ~/Downloads/zotero-ask.zip -d ~/.claude/skills/zotero-ask
+     ```
+   - Windows (PowerShell):
+     ```
+     Expand-Archive -Force "$HOME\Downloads\zotero-ask.zip" "$HOME\.claude\skills\zotero-ask"
+     ```
+   `SKILL.md` should now sit directly inside `.claude/skills/zotero-ask/`.
+3. Start Claude Code and say:
+   > set up zotero-ask
+
+   Claude checks Python and finds your Zotero folder. The API key for grey highlights is optional; Claude opens an [illustrated guide](docs/zotero-api-key.md) for it.
+
+**Use it**
+
+> What is the main contribution of the Smith 2023 paper in my Zotero?
+
+To update, download the zip again and run the same unzip command. The `VERSION` file in the skill folder shows which version you have.
+
+---
+
+## Path 2: paper-search, find literature
+
+*Coming soon.* paper-search finds papers on a topic with bibliographic data checked against OpenAlex, never made up. It marks papers already in your Zotero (★) and ones you excluded before (✗), and adds the ones you pick to Zotero.
+
+---
+
+## Path 3: the full zotero-llm-wiki
+
+A Claude Code plugin that turns your Zotero library into an **LLM-maintained wiki in Obsidian**. Ask Claude "find literature on X" or "how did this paper run the experiment?" and it searches the literature, reads the PDFs in your Zotero library, answers with page numbers and quotes, and files everything into a literature database that keeps itself up to date.
+
+> **Language note:** the full version was built for Traditional Chinese users, so generated pages, folder names and record fields are currently in Chinese. You can talk to Claude in English and it answers in English. A full English version is planned; if you'd use it, please open an issue so I know.
+
+### What problems it solves
 
 | Before | After |
 |---|---|
@@ -27,7 +85,7 @@ Good fit if you are a grad student or researcher doing a **literature review**, 
 | Discussions with the AI are buried in old chats | Each paper gets an AI note, and every Q&A about it is appended there |
 | You forget why you saved a paper | Each paper records why it was collected, its main contribution, and what that judgment is based on (full text, abstract, or bibliography only) |
 
-## How it fits together
+### How it fits together
 
 ```
 You: save papers and highlight in Zotero      You: talk to Claude
@@ -49,9 +107,9 @@ Day to day you only open two apps:
 
 ---
 
-## Installation
+## Installing the full version
 
-> 💡 **No release download needed.** This is a Claude Code plugin: the command in Step 3 installs it straight from GitHub. Just follow the steps below.
+> 💡 **No download needed.** The full version is a Claude Code plugin: the command in Step 3 installs it straight from GitHub. Just follow the steps below.
 
 Step 1 has separate instructions for Windows and macOS. Steps 2–4 are the same on both.
 
@@ -142,11 +200,11 @@ In the Claudian panel, say:
 
 Claude walks you through the rest one step at a time: checking Python and Zotero, saving your Zotero API key, creating the folders, describing your research topic and tag vocabulary, and configuring Obsidian. Partway through it asks you to restart Obsidian. After the restart, open Claudian and say "continue setting up zotero-llm-wiki".
 
-> 🔑 **An API key is a password.** During setup Claude gives you a one-line command to paste into PowerShell (Windows) or Terminal (macOS); it saves the key straight to your computer. **Never paste the key into the chat.**
+> 🔑 **An API key is a password.** During setup Claude opens an [illustrated guide](docs/zotero-api-key.md) to creating the key, then gives you a one-line command to paste into PowerShell (Windows) or Terminal (macOS); it saves the key straight to your computer. **Never paste the key into the chat.**
 
 ---
 
-## Everyday use
+## Using the full version
 
 **Open Obsidian and talk to Claude in the Claudian panel on the right.** Use plain language; there are no commands to memorize.
 
@@ -266,7 +324,10 @@ Better BibTeX isn't installed correctly, or that paper doesn't have a key yet. I
 **Q: I want to change the tags.**
 Tell Claude something like "add topic/xxx to the tag vocabulary, meaning …". It updates `設定.json`.
 
-**Q: How do I update the plugin?**
+**Q: Can I install zotero-ask and the full version together?**
+No. The full version already reads papers and adds grey highlights, and with both installed Claude can't tell which one to use. If you move up to the full version, delete the `.claude/skills/zotero-ask` folder.
+
+**Q: How do I update the full version?**
 In Claudian, say "update the zotero-llm-wiki plugin: run `claude plugin marketplace update zotero-llm-wiki`, then `claude plugin update zotero-llm-wiki@zotero-llm-wiki`", then restart Obsidian. (If you installed from a ZIP, replace the old folder with a fresh download first.)
 
 **Q: Does it cost extra?**
