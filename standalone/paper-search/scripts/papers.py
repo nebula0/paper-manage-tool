@@ -10,6 +10,10 @@
   papers.py save <JSON string or .json file>
                                             add or update papers in <folder>/papers.csv (needs a log folder)
   papers.py folder <path>                   set the log folder ("" to stop logging)
+  papers.py add [--status candidate,to-read] [DOI ...]
+                                            add papers straight into Zotero (Zotero must be open; goes into the
+                                            collection selected there); DOIs given → those papers, else the log;
+                                            papers already in Zotero are skipped
   papers.py ris -o <file.ris> [--status candidate,to-read] [DOI ...]
                                             export for Zotero import (File → Import); DOIs given → those papers, else the log;
                                             papers already in Zotero are skipped
@@ -292,19 +296,25 @@ def folder(path):
 RIS_TYPES = {"article": "JOUR", "review": "JOUR", "book": "BOOK", "book-chapter": "CHAP",
              "dissertation": "THES", "preprint": "UNPB", "report": "RPRT", "dataset": "DATA"}
 
-def ris(out, idents, statuses):
-    if not idents:
-        rows = read_log()[0]
-        if not rows: sys.exit("Nothing to export: give DOIs, or save papers to the log first.")
-        idents = [r.get("doi") or r.get("openalex") for r in rows
-                  if (r.get("status") or "").strip().lower() in statuses and (r.get("doi") or r.get("openalex"))]
-        if not idents: sys.exit(f"No papers in the log with status {', '.join(statuses)}.")
+def pick(idents, statuses):
+    """DOIs given → those; else the log's papers with these statuses"""
+    if idents: return idents
+    rows = read_log()[0]
+    if not rows: sys.exit("Nothing to do: give DOIs, or save papers to the log first.")
+    idents = [r.get("doi") or r.get("openalex") for r in rows
+              if (r.get("status") or "").strip().lower() in statuses and (r.get("doi") or r.get("openalex"))]
+    if not idents: sys.exit(f"No papers in the log with status {', '.join(statuses)}.")
+    return idents
+
+def build_ris(idents):
+    """RIS text for papers not yet in Zotero → (text, count, skipped titles)"""
     zdois, ztitles = zotero_index()
-    lines, skipped = [], 0
+    lines, count, skipped = [], 0, []
     for ident in idents:
         r = record(ident)
         if (r["doi"] and r["doi"] in zdois) or simple(r["title"]) in ztitles:
-            skipped += 1; continue                                    # already in Zotero; importing would duplicate it
+            skipped.append(r["title"]); continue                     # already in Zotero; importing would duplicate it
+        count += 1
         lines.append(f"TY  - {RIS_TYPES.get(r['type'], 'GEN')}")
         lines.append(f"TI  - {r['title']}")
         lines += [f"AU  - {a}" for a in r["authors"]]
@@ -314,12 +324,46 @@ def ris(out, idents, statuses):
         if r["oa_url"]: lines.append(f"UR  - {r['oa_url']}")
         if r["abstract"]: lines.append(f"AB  - {r['abstract']}")
         lines += ["ER  - ", ""]
-    if skipped: print(f"Skipped {skipped} already in Zotero.")
-    if not lines: sys.exit("Nothing left to export.")
+    if skipped: print(f"Skipped {len(skipped)} already in Zotero: " + "; ".join(t[:60] for t in skipped))
+    return "\n".join(lines), count, skipped
+
+def ris(out, idents, statuses):
+    text, count, _ = build_ris(pick(idents, statuses))
+    if not count: sys.exit("Nothing left to export.")
     p = Path(out).expanduser()
     p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text("\n".join(lines), encoding="utf-8")
-    print(f"✅ {len(idents) - skipped} papers → {p}\n   In Zotero: File → Import… → choose this file.")
+    p.write_text(text, encoding="utf-8")
+    print(f"✅ {count} papers → {p}\n   In Zotero: File → Import… → choose this file.")
+
+CONNECTOR = "http://127.0.0.1:23119/connector"
+
+def connector(path, body, ctype="application/json"):
+    req = urllib.request.Request(f"{CONNECTOR}/{path}", data=body.encode("utf-8"),
+                                 headers={"Content-Type": ctype}, method="POST")
+    with urllib.request.urlopen(req, timeout=60) as r:
+        return r.status, r.read().decode("utf-8")
+
+def add(idents, statuses):
+    """Add papers to Zotero through the running Zotero app (same local channel as the browser connector)"""
+    idents = pick(idents, statuses)
+    try:
+        _, sel = connector("getSelectedCollection", "{}")
+    except (urllib.error.URLError, OSError):
+        sys.exit("Zotero isn't running (or is too old). Ask the user to open Zotero and try again; "
+                 "or export a file with: papers.py ris -o <file.ris>")
+    sel = json.loads(sel)
+    if not sel.get("editable", True): sys.exit(f"The selected library/collection \"{sel.get('name')}\" is read-only. Select another one in Zotero.")
+    text, count, _ = build_ris(idents)
+    if not count: print("Nothing to add."); return
+    try:
+        code, body = connector("import", text, "application/x-research-info-systems")
+    except urllib.error.HTTPError as e:
+        sys.exit(f"Zotero refused the import (HTTP {e.code}): {e.read().decode('utf-8', 'replace')[:200]}")
+    items = json.loads(body or "[]")
+    where = sel.get("name") or sel.get("libraryName") or "your library"
+    print(f"✅ {len(items)} papers added to Zotero → \"{where}\" (the collection selected in Zotero)")
+    print("   No PDFs attached. For open-access papers: select them in Zotero → right-click → Find Available PDF. "
+          "Paywalled papers need the user's institutional access.")
 
 def status():
     zok = (ZDIR / "zotero.sqlite").exists()
@@ -352,6 +396,9 @@ elif cmd == "cites":
 elif cmd == "fetch": fetch(a[0])
 elif cmd == "save": save(" ".join(a))
 elif cmd == "folder": folder(a[0] if a else "")
+elif cmd == "add":
+    st = [s.strip() for s in opt(a, "--status", "candidate,to-read").split(",")]
+    add(a, st)
 elif cmd == "ris":
     out = opt(a, "-o") or sys.exit("ris needs -o <file.ris>")
     st = [s.strip() for s in opt(a, "--status", "candidate,to-read").split(",")]

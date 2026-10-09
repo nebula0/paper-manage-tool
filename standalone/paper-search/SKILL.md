@@ -1,13 +1,13 @@
 ---
 name: paper-search
-description: Find research papers with bibliographic data checked against OpenAlex, never made up. Checks your Zotero library first, marks papers you already have (★) and ones you excluded before (✗); can keep a CSV log and export RIS for Zotero import. Use when the user asks to find, search for or recommend papers or literature on a topic, wants a literature review starting point, wants to check a citation or DOI, or wants citation tracking (what a paper cites / what cites it). Also use when the user says "set up paper-search".
+description: Find research papers with bibliographic data checked against OpenAlex, never made up. Checks your Zotero library first, marks papers you already have (★) and ones you excluded before (✗); can add papers straight into Zotero and keep a CSV log. Use when the user asks to find, search for or recommend papers or literature on a topic, wants a literature review starting point, wants to check a citation or DOI, or wants citation tracking (what a paper cites / what cites it). Also use when the user says "set up paper-search".
 ---
 
 # paper-search: find papers you can trust
 
-Search for papers, check every bibliographic detail against OpenAlex, and answer **in the chat**. Writing files is optional: a CSV log when the user sets a folder, an RIS file when they want to import into Zotero.
+Search for papers, check every bibliographic detail against OpenAlex, and answer **in the chat**. Writing is optional: papers go into Zotero when the user asks, and into a CSV log when they set a folder.
 
-**Language:** reply in the user's language. The CSV columns and status values stay in English (`candidate`, `to-read`, `excluded`); `contribution` and `reason` follow the user's language.
+**Language:** always reply in the language the user writes in, including tips, notices and the closing summary line. The English sentences in this file are examples of the content, not text to copy; translate them. Paper titles, venues and DOIs stay as published. The CSV columns and status values stay in English (`candidate`, `to-read`, `excluded`); `contribution` and `reason` follow the user's language.
 
 The tool is `scripts/papers.py` inside this skill's folder (the base directory shown when this skill loads, written `<skill>` below). Use `python` on Windows and `python3` on macOS/Linux. Below, `P` = `python3 "<skill>/scripts/papers.py"`.
 
@@ -19,7 +19,8 @@ If the first run fails (no Python, no internet), go through **Setup** at the end
 2. **Every paper you recommend gets one sentence on its main contribution**, followed by the basis for that judgment: `full text`, `abstract`, `secondary` (someone else's description, a search snippet) or `metadata only`. Papers with `metadata only` are candidates at most; don't call them must-cite.
 3. **List the papers you excluded too**, each with a one-line reason.
 4. **Respect the marks**: ★ = already in the user's Zotero, don't present it as new; ✗ = the user excluded it before, skip it unless asked (mention how many you skipped).
-5. **Don't bulk-download PDFs.** Point to the free full-text link `P fetch` gives; if there's none, say the user needs library access.
+5. **Say how to get each paper's full text.** `P fetch` shows a free full-text link when one exists; give it. When there's none (`Free full text: none found`), the paper is most likely paywalled: tell the user plainly that they need to download it themselves through their institution's access (library website, campus network or VPN, or signing in on the publisher's site with their institution), and that Claude can't do this for them. Say this once, listing which papers it applies to, not after every paper.
+6. **Don't download PDFs yourself**, not even free ones in bulk; give the links.
 
 ## Searching
 
@@ -38,7 +39,7 @@ If the first run fails (no Python, no internet), go through **Setup** at the end
    - **Already in your Zotero** (when relevant ones exist): a short list, one line each, so the user sees what they have. Don't re-recommend them below.
    - New papers worth reading, most useful first: `Author et al. (Year). Title. Venue. DOI` + contribution (basis) + why it fits the user's goal. Mark ★ ones as already in Zotero.
    - Excluded papers, one line each with the reason.
-   - Which 2–3 to read first, and any free full-text links.
+   - Which 2–3 to read first, the free full-text links, and the paywall notice from rule 5 for those without one.
    - One closing line on what you did, e.g. `4 queries, 2 citation tracks | 9 kept, 5 excluded, 3 already in Zotero`.
 
 Web search ranking is opaque and not reproducible; don't present results as a systematic review.
@@ -66,9 +67,14 @@ Also offer it when the user rejects a paper ("not this one", "that's off topic")
 
 The log is `<folder>/papers.csv`, one row per paper. Tell the user they can open it in Excel/Numbers/Google Sheets, and that changing a row's `status` to `excluded` there works the same as telling you. If saving fails because the file is open in Excel, ask them to close it.
 
-## Importing into Zotero
+## Adding to Zotero
 
-When the user wants papers in Zotero: `P ris -o "<file>.ris" <DOI> <DOI>...`, or with no DOIs to export the log's `candidate` and `to-read` papers (`--status to-read` for just those). Papers already in Zotero are skipped. With no folder given, write to the user's Downloads folder. Then tell them: Zotero → File → Import… → choose the file.
+Only when the user asks ("add these to Zotero", "save #1 and #3"); never add on your own.
+
+1. `P add <DOI> <DOI>...`, or with no DOIs to add the log's `candidate` and `to-read` papers (`--status to-read` for just those). Bibliographic data comes from OpenAlex; papers already in Zotero are skipped.
+2. Zotero must be open. The papers go into **whichever collection is selected in Zotero** at that moment; the output names it. If the user wants a specific collection, ask them to click it in Zotero first, then run the command.
+3. Tell the user what was added and where. No PDFs are attached: for open-access papers they can select them in Zotero → right-click → **Find Available PDF**; paywalled ones they need to download through their institution (rule 5).
+4. If Zotero isn't running: ask the user to open it and retry. If that doesn't work (very old Zotero), fall back to a file: `P ris -o "<Downloads>/papers-<date>.ris" <DOI>...` and tell them Zotero → File → Import… → choose the file.
 
 ## Setup (first use, or when the user says "set up paper-search")
 
@@ -76,7 +82,7 @@ Go one step at a time: check each step first and skip it if it's already done; w
 
 1. **Python**: try `python --version`, `python3 --version`, `py --version` in order and use one that is ≥ 3.9. None: install from https://www.python.org/downloads/ (on Windows tick "Add python.exe to PATH" on the first screen, then restart Claude Code). No extra packages are needed.
 2. **Check**: `P status`, then `P search "test" --n 1`. A result means it works.
-3. **Zotero (optional, for checking what they already have and ★ marks)**: `P status` finds the Zotero library in the default place (`Zotero/` in the home folder). If the user has Zotero but it shows "not found", ask them to check Zotero Settings → Advanced → Files and Folders → Data Directory Location, then save it:
+3. **Zotero (optional, for checking what they already have, ★ marks and adding papers)**: `P status` finds the Zotero library in the default place (`Zotero/` in the home folder). If the user has Zotero but it shows "not found", ask them to check Zotero Settings → Advanced → Files and Folders → Data Directory Location, then save it:
    `python3 -c "import sys; sys.path.insert(0, r'<skill>/scripts'); import litcommon; litcommon.save_setting('zotero_dir', r'<path>')"`
    Nothing is ever written to Zotero; it's read-only.
 4. **Log folder (optional)**: ask whether they want searches remembered; if yes, `P folder "<path>"`.
