@@ -22,7 +22,7 @@ Marks in results: ★ already in your Zotero library, ✗ excluded before (in pa
 papers.csv is plain CSV: open it in Excel/Numbers/Google Sheets. Changing a row's status to "excluded"
 there works the same as telling Claude.
 """
-import sys, re, csv, json, sqlite3, unicodedata, urllib.request, urllib.error, urllib.parse
+import sys, re, csv, json, uuid, sqlite3, unicodedata, urllib.request, urllib.error, urllib.parse
 from pathlib import Path
 from datetime import date
 
@@ -306,6 +306,16 @@ def pick(idents, statuses):
     if not idents: sys.exit(f"No papers in the log with status {', '.join(statuses)}.")
     return idents
 
+PARTICLES = {"van", "von", "der", "den", "de", "del", "della", "di", "da", "du", "la", "le", "dos", "das", "ter", "ten"}
+
+def ris_name(full):
+    """'Mikhail V. Lapine' → 'Lapine, Mikhail V.' (RIS wants Last, First; otherwise Zotero stores one field)"""
+    parts = full.split()
+    if "," in full or len(parts) < 2: return full
+    i = len(parts) - 1
+    while i > 1 and parts[i - 1].lower() in PARTICLES: i -= 1       # keep 'van der Waals' together
+    return f"{' '.join(parts[i:])}, {' '.join(parts[:i])}"
+
 def build_ris(idents):
     """RIS text for papers not yet in Zotero → (text, count, skipped titles)"""
     zdois, ztitles = zotero_index()
@@ -317,7 +327,7 @@ def build_ris(idents):
         count += 1
         lines.append(f"TY  - {RIS_TYPES.get(r['type'], 'GEN')}")
         lines.append(f"TI  - {r['title']}")
-        lines += [f"AU  - {a}" for a in r["authors"]]
+        lines += [f"AU  - {ris_name(a)}" for a in r["authors"]]
         if r["year"]: lines.append(f"PY  - {r['year']}")
         if r["venue"]: lines.append(f"T2  - {r['venue']}")
         if r["doi"]: lines.append(f"DO  - {r['doi']}")
@@ -356,7 +366,8 @@ def add(idents, statuses):
     text, count, _ = build_ris(idents)
     if not count: print("Nothing to add."); return
     try:
-        code, body = connector("import", text, "application/x-research-info-systems")
+        code, body = connector(f"import?session={uuid.uuid4().hex}", text,      # fresh session each time, or Zotero
+                               "application/x-research-info-systems")         # answers 409 SESSION_EXISTS
     except urllib.error.HTTPError as e:
         sys.exit(f"Zotero refused the import (HTTP {e.code}): {e.read().decode('utf-8', 'replace')[:200]}")
     items = json.loads(body or "[]")
