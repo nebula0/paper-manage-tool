@@ -36,7 +36,9 @@ If the first run fails (no Python, no `pymupdf`, no `zotero.sqlite`), go through
 
 ## 4. Grey highlights (when a key is set up; do it after answering, without asking)
 
-No key (`~/.config/zotero/api_key` missing): skip this, and at the end of the first answer mention once that saying "set up zotero-ask" lets Claude highlight the PDF automatically.
+No key (`~/.config/zotero/api_key` missing): skip this, and at the end of the first answer mention once that saying "set up zotero-ask" lets Claude highlight the PDF automatically. **Never work around a missing key**: don't draw on the PDF with other tools.
+
+**Never write to the Zotero data folder**: no changes to files in `storage/`, to the PDFs or to `zotero.sqlite`. Highlights go only through `A add`, which uses the Zotero web API.
 
 - Highlight the passages the answer relied on. **Whole passages**: context + claim + the authors' reasoning or caveats, usually 2–5 sentences; never across pages, never overlapping a neighbouring highlight. Only highlight what is genuinely useful.
 - Always grey. The tag must be one of `claim`, `critique`, `method`, `data`, `todo`, `relevance` (the script adds the `AI/` prefix). For Chinese-speaking users use `論點`, `質疑`, `方法`, `數據`, `待查`, `本研究` instead.
