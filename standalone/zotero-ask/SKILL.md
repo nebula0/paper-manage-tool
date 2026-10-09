@@ -21,7 +21,7 @@ If the first run fails (no Python, no `pymupdf`, no `zotero.sqlite`), go through
 
 0. **Every time, start with `Z status`.** It shows whether the API key is set (decides section 4) and whether `zotero_ask_notes` is set (decides section 5).
 1. `Z find "author keyword"` → **attachment key** (the PDF attachment's key, not the parent item's), title, authors.
-2. Several matches: list them and ask the user to pick. None: ask for other keywords, or to check that the PDF is in Zotero. **Do not search the web.**
+2. Several matches: list them and ask the user to pick. None: say it isn't in Zotero and ask the user to add the PDF or give other keywords. **Stop there: don't search the web, and don't answer about the paper's content from memory**, even with a disclaimer.
 3. Supplementary material is usually a separate attachment; `Z find` lists it too.
 
 ## 2. Read
