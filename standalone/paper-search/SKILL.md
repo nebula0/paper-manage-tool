@@ -1,6 +1,6 @@
 ---
 name: paper-search
-description: Find research papers with bibliographic data checked against OpenAlex, never made up. Checks your Zotero library first, marks papers you already have (★) and ones you excluded before (✗); can add papers straight into Zotero and keep a CSV log. Use when the user asks to find, search for or recommend papers or literature on a topic, wants a literature review starting point, wants to check a citation or DOI, or wants citation tracking (what a paper cites / what cites it). Also use when the user says "set up paper-search".
+description: Find research papers with bibliographic data checked against OpenAlex, never made up. Checks your Zotero library first, marks papers you already have (★) and ones you excluded before (✗); can add papers straight into Zotero (with the open-access PDF when available) and keep a CSV log. Use when the user asks to find, search for or recommend papers or literature on a topic, wants a literature review starting point, wants to check a citation or DOI, or wants citation tracking (what a paper cites / what cites it). Also use when the user says "set up paper-search".
 ---
 
 # paper-search: find papers you can trust
@@ -20,7 +20,7 @@ If the first run fails (no Python, no internet), go through **Setup** at the end
 3. **List the papers you excluded too**, each with a one-line reason.
 4. **Respect the marks**: ★ = already in the user's Zotero, don't present it as new; ✗ = the user excluded it before, skip it unless asked (mention how many you skipped).
 5. **Say how to get each paper's full text.** `P fetch` shows a free full-text link when one exists; give it. When there's none (`Free full text: none found`), the paper is most likely paywalled: tell the user plainly that they need to download it themselves through their institution's access (library website, campus network or VPN, or signing in on the publisher's site with their institution), and that Claude can't do this for them. Say this once, listing which papers it applies to, not after every paper.
-6. **Don't download PDFs yourself**, not even free ones in bulk; give the links.
+6. **Don't download PDFs yourself** (no curl, no browser tools). The only download is `P add`, which attaches open-access PDFs when the user asks to add papers to Zotero.
 
 ## Searching
 
@@ -73,8 +73,9 @@ Only when the user asks ("add these to Zotero", "save #1 and #3"); never add on 
 
 1. `P add <DOI> <DOI>...`, or with no DOIs to add the log's `candidate` and `to-read` papers (`--status to-read` for just those). Bibliographic data comes from OpenAlex; papers already in Zotero are skipped.
 2. Zotero must be open. The papers go into **whichever collection is selected in Zotero** at that moment; the output names it. If the user wants a specific collection, ask them to click it in Zotero first, then run the command.
-3. Tell the user what was added and where. No PDFs are attached: for open-access papers they can select them in Zotero → right-click → **Find Available PDF**; paywalled ones they need to download through their institution (rule 5).
-4. If Zotero isn't running: ask the user to open it and retry. If that doesn't work (very old Zotero), fall back to a file: `P ris -o "<Downloads>/papers-<date>.ris" <DOI>...` and tell them Zotero → File → Import… → choose the file.
+3. PDFs: for open-access papers `P add` tries every free copy OpenAlex knows (arXiv and university repositories first) and attaches the first real PDF. Many publisher sites block scripts; then the item gets the link only. `--no-pdf` skips this if the user doesn't want files.
+4. Tell the user, per paper, what happened, using the output: PDF attached; free version exists but the site blocked the download (they can open the link saved in the item's URL field in their browser, or select the item in Zotero → right-click → **Find Available PDF**); or paywalled (they need their institution's access, rule 5). Mention when the attached PDF is an open-access copy (e.g. arXiv), since it may differ slightly from the published version.
+5. If Zotero isn't running: ask the user to open it and retry. If that doesn't work (very old Zotero), fall back to a file: `P ris -o "<Downloads>/papers-<date>.ris" <DOI>...` and tell them Zotero → File → Import… → choose the file.
 
 ## Setup (first use, or when the user says "set up paper-search")
 

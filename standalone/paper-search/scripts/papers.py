@@ -10,9 +10,10 @@
   papers.py save <JSON string or .json file>
                                             add or update papers in <folder>/papers.csv (needs a log folder)
   papers.py folder <path>                   set the log folder ("" to stop logging)
-  papers.py add [--status candidate,to-read] [DOI ...]
+  papers.py add [--status candidate,to-read] [--no-pdf] [DOI ...]
                                             add papers straight into Zotero (Zotero must be open; goes into the
-                                            collection selected there); DOIs given → those papers, else the log;
+                                            collection selected there) with the open-access PDF attached when the
+                                            site allows it; DOIs given → those papers, else the log;
                                             papers already in Zotero are skipped
   papers.py ris -o <file.ris> [--status candidate,to-read] [DOI ...]
                                             export for Zotero import (File → Import); DOIs given → those papers, else the log;
@@ -53,7 +54,7 @@ def excluded(status):
 
 # ───────── OpenAlex ─────────
 OA_FIELDS = ("id,doi,title,publication_year,type,cited_by_count,open_access,best_oa_location,"
-             "primary_location,authorships,abstract_inverted_index,referenced_works")
+             "primary_location,locations,authorships,abstract_inverted_index,referenced_works")
 
 def oa_get(path, **params):
     key = read_key("openalex")                                        # works without a key, with a lower daily quota
@@ -70,6 +71,15 @@ def oa_get(path, **params):
     except urllib.error.URLError as e:
         sys.exit(f"Can't reach OpenAlex ({e.reason}). Check the internet connection.")
 
+def pdf_urls(w):
+    """Every free PDF link OpenAlex knows, repositories (arXiv, university archives) first: they rarely block scripts"""
+    locs = [l for l in w.get("locations") or [] if l.get("is_oa") and l.get("pdf_url")]
+    locs.sort(key=lambda l: ((l.get("source") or {}).get("type") != "repository"))
+    out = []
+    for u in [l["pdf_url"] for l in locs] + [((w.get("best_oa_location") or {}).get("pdf_url"))]:
+        if u and u not in out: out.append(u)
+    return out
+
 def oa_trim(w):
     src = ((w.get("primary_location") or {}).get("source") or {})
     best, oa = w.get("best_oa_location") or {}, w.get("open_access") or {}
@@ -81,6 +91,8 @@ def oa_trim(w):
             "authors": [a["author"]["display_name"] for a in w.get("authorships") or []],
             "cited_by": w.get("cited_by_count"),
             "oa_url": best.get("pdf_url") or best.get("landing_page_url") or oa.get("oa_url") or "",
+            "pdf_url": best.get("pdf_url") or "",
+            "pdf_urls": pdf_urls(w),
             "abstract": " ".join(word for _, word in pos) or None,
             "refs": [r.rsplit("/", 1)[-1] for r in w.get("referenced_works") or []]}
 
@@ -91,7 +103,8 @@ def record(ident):
     key = oid or norm_doi(ident)
     p = OACACHE / (urllib.parse.quote(key, safe="") + ".json")
     if p.exists():
-        return json.loads(p.read_text(encoding="utf-8"))
+        rec = json.loads(p.read_text(encoding="utf-8"))
+        if "pdf_urls" in rec: return rec                                # older cache entries lack pdf_urls: refetch
     path = f"works/{oid}" if oid else f"works/doi:{urllib.parse.quote(key, safe='/')}"
     try:
         rec = oa_trim(oa_get(path))
@@ -308,13 +321,20 @@ def pick(idents, statuses):
 
 PARTICLES = {"van", "von", "der", "den", "de", "del", "della", "di", "da", "du", "la", "le", "dos", "das", "ter", "ten"}
 
-def ris_name(full):
-    """'Mikhail V. Lapine' → 'Lapine, Mikhail V.' (RIS wants Last, First; otherwise Zotero stores one field)"""
+def split_name(full):
+    """'Mikhail V. Lapine' → ('Lapine', 'Mikhail V.'); keeps 'van der Waals' together"""
+    if "," in full:
+        last, _, first = full.partition(","); return last.strip(), first.strip()
     parts = full.split()
-    if "," in full or len(parts) < 2: return full
+    if len(parts) < 2: return full, ""
     i = len(parts) - 1
-    while i > 1 and parts[i - 1].lower() in PARTICLES: i -= 1       # keep 'van der Waals' together
-    return f"{' '.join(parts[i:])}, {' '.join(parts[:i])}"
+    while i > 1 and parts[i - 1].lower() in PARTICLES: i -= 1
+    return " ".join(parts[i:]), " ".join(parts[:i])
+
+def ris_name(full):
+    """RIS wants 'Last, First'; otherwise Zotero stores the whole name in one field"""
+    last, first = split_name(full)
+    return f"{last}, {first}" if first else last
 
 def build_ris(idents):
     """RIS text for papers not yet in Zotero → (text, count, skipped titles)"""
@@ -353,8 +373,38 @@ def connector(path, body, ctype="application/json"):
     with urllib.request.urlopen(req, timeout=60) as r:
         return r.status, r.read().decode("utf-8")
 
-def add(idents, statuses):
-    """Add papers to Zotero through the running Zotero app (same local channel as the browser connector)"""
+ZOTERO_TYPES = {"article": "journalArticle", "review": "journalArticle", "letter": "journalArticle",
+                "editorial": "journalArticle", "book": "book", "book-chapter": "bookSection",
+                "dissertation": "thesis", "preprint": "preprint", "report": "report", "dataset": "dataset"}
+VENUE_FIELD = {"journalArticle": "publicationTitle", "bookSection": "bookTitle", "preprint": "repository"}
+UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+
+def zotero_item(r, cid):
+    t = ZOTERO_TYPES.get(r["type"], "journalArticle")
+    it = {"id": cid, "itemType": t, "title": r["title"],
+          "creators": [dict(zip(("lastName", "firstName"), split_name(a)), creatorType="author") for a in r["authors"]],
+          "date": str(r["year"] or ""), "DOI": r["doi"], "url": r["oa_url"] or (f"https://doi.org/{r['doi']}" if r["doi"] else ""),
+          "abstractNote": r["abstract"] or "", "attachments": [], "tags": [], "notes": []}
+    if r["venue"] and t in VENUE_FIELD: it[VENUE_FIELD[t]] = r["venue"]
+    return it
+
+def download_pdf(url):
+    """Open-access PDF bytes, or (None, why) when the site blocks scripts or sends a web page instead"""
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "application/pdf,*/*"})
+        with urllib.request.urlopen(req, context=SSL_CTX, timeout=60) as r:
+            data = r.read(60_000_001)
+    except urllib.error.HTTPError as e:
+        return None, f"the site refused the download (HTTP {e.code})"
+    except (urllib.error.URLError, OSError) as e:
+        return None, f"couldn't reach the site ({getattr(e, 'reason', e)})"
+    if not data.startswith(b"%PDF"): return None, "the site sent a web page, not the PDF (probably a bot check)"
+    if len(data) > 60_000_000: return None, "the PDF is over 60 MB"
+    return data, None
+
+def add(idents, statuses, with_pdf=True):
+    """Add papers to Zotero through the running Zotero app (same local channel as the browser connector),
+    attaching the open-access PDF when the site lets a script download it"""
     idents = pick(idents, statuses)
     try:
         _, sel = connector("getSelectedCollection", "{}")
@@ -363,18 +413,43 @@ def add(idents, statuses):
                  "or export a file with: papers.py ris -o <file.ris>")
     sel = json.loads(sel)
     if not sel.get("editable", True): sys.exit(f"The selected library/collection \"{sel.get('name')}\" is read-only. Select another one in Zotero.")
-    text, count, _ = build_ris(idents)
-    if not count: print("Nothing to add."); return
+    zdois, ztitles = zotero_index()
+    recs, skipped = [], []
+    for ident in idents:
+        r = record(ident)
+        if (r["doi"] and r["doi"] in zdois) or simple(r["title"]) in ztitles: skipped.append(r["title"])
+        else: recs.append(r)
+    if skipped: print(f"Skipped {len(skipped)} already in Zotero: " + "; ".join(t[:60] for t in skipped))
+    if not recs: print("Nothing to add."); return
+    session = uuid.uuid4().hex                                       # fresh session each time, or Zotero answers 409
+    items = [zotero_item(r, f"ps{i}") for i, r in enumerate(recs)]
     try:
-        code, body = connector(f"import?session={uuid.uuid4().hex}", text,      # fresh session each time, or Zotero
-                               "application/x-research-info-systems")         # answers 409 SESSION_EXISTS
+        connector("saveItems", json.dumps({"sessionID": session, "uri": "https://openalex.org/", "items": items}))
     except urllib.error.HTTPError as e:
-        sys.exit(f"Zotero refused the import (HTTP {e.code}): {e.read().decode('utf-8', 'replace')[:200]}")
-    items = json.loads(body or "[]")
+        sys.exit(f"Zotero refused the items (HTTP {e.code}): {e.read().decode('utf-8', 'replace')[:200]}")
     where = sel.get("name") or sel.get("libraryName") or "your library"
-    print(f"✅ {len(items)} papers added to Zotero → \"{where}\" (the collection selected in Zotero)")
-    print("   No PDFs attached. For open-access papers: select them in Zotero → right-click → Find Available PDF. "
-          "Paywalled papers need the user's institutional access.")
+    print(f"✅ {len(recs)} papers added to Zotero → \"{where}\" (the collection selected in Zotero)")
+    for i, r in enumerate(recs):
+        label = f"   {(r['authors'][0].split()[-1] if r['authors'] else '?')} {r['year']}: "
+        if not with_pdf: print(label + "PDF skipped (--no-pdf)"); continue
+        if not r["pdf_urls"]:
+            print(label + ("no PDF: no free PDF link; the free version is a web page: " + r["oa_url"] if r["oa_url"]
+                           else "no PDF: paywalled, the user needs their institution's access")); continue
+        for url in r["pdf_urls"]:
+            data, why = download_pdf(url)
+            if data: break
+        if not data:
+            print(label + f"no PDF: {why}" + (f" (tried {len(r['pdf_urls'])} copies)" if len(r["pdf_urls"]) > 1 else "") + ". Link saved in the item's URL field; the user can download it in a browser"); continue
+        meta = {"sessionID": session, "parentItemID": f"ps{i}", "title": "Full Text PDF" if url == r["pdf_url"] else "Full Text PDF (open-access copy)", "url": url}
+        req = urllib.request.Request(f"{CONNECTOR}/saveAttachment", data=data, method="POST",
+                                     headers={"Content-Type": "application/pdf", "X-Metadata": json.dumps(meta)})
+        try:
+            with urllib.request.urlopen(req, timeout=120) as resp:
+                ok = resp.status == 201
+                note = resp.read().decode("utf-8", "replace")[:100]
+        except urllib.error.HTTPError as e:
+            ok, note = False, f"HTTP {e.code} {e.read().decode('utf-8', 'replace')[:100]}"
+        print(label + (f"PDF attached ({len(data) // 1024} KB)" if ok else f"no PDF: Zotero didn't accept the file ({note})"))
 
 def status():
     zok = (ZDIR / "zotero.sqlite").exists()
@@ -408,8 +483,8 @@ elif cmd == "fetch": fetch(a[0])
 elif cmd == "save": save(" ".join(a))
 elif cmd == "folder": folder(a[0] if a else "")
 elif cmd == "add":
-    st = [s.strip() for s in opt(a, "--status", "candidate,to-read").split(",")]
-    add(a, st)
+    st, nopdf = [s.strip() for s in opt(a, "--status", "candidate,to-read").split(",")], flag(a, "--no-pdf")
+    add(a, st, not nopdf)
 elif cmd == "ris":
     out = opt(a, "-o") or sys.exit("ris needs -o <file.ris>")
     st = [s.strip() for s in opt(a, "--status", "candidate,to-read").split(",")]
