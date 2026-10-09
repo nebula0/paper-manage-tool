@@ -1,4 +1,4 @@
-# zotero-llm-wiki：你的論文專屬 LLM wiki，讓 Claude 幫你讀論文、整理文獻
+# zotero-llm-wiki：讓 Claude 讀論文、找文獻、整理文獻庫
 
 **Claude Code + Zotero** · 問論文內容，附頁碼回答 · 搜尋文獻 · Obsidian 裡自動更新的文獻庫
 

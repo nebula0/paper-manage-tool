@@ -1,4 +1,4 @@
-# zotero-llm-wiki: an LLM wiki for your research papers
+# zotero-llm-wiki: Claude Code tools for your research papers
 
 **Claude Code + Zotero** · ask about your papers with page-cited answers · search the literature · a self-updating literature wiki in Obsidian
 
