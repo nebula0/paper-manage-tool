@@ -36,7 +36,7 @@ description: zotero-llm-wiki（舊名 lit-tools）第一次使用的設定精靈
 
 ### Zotero API 金鑰（必要，用來寫 AI 灰色標註）
 
-1. 請使用者到 https://www.zotero.org/settings/keys →「Create new private key」，Personal Library 勾 **Allow library access**、**Allow notes access**、**Allow write access** → 儲存。
+1. 在使用者的瀏覽器打開圖解說明：`PY -c "import sys; sys.path.insert(0, r'${CLAUDE_PLUGIN_ROOT}/scripts'); import litcommon; litcommon.open_path('https://github.com/nebula0/zotero-llm-wiki/blob/main/docs/zotero-api-key.md')"`，並在對話裡附上同一個連結（瀏覽器沒打開時用）。重點：到 https://www.zotero.org/settings/keys →「Create new private key」，Personal Library 勾 **Allow library access**、**Allow notes access**、**Allow write access** → Save Key。
 2. 給他存金鑰的指令，並說明順序：**先把指令貼到終端機、先不要按 Enter → 回網頁複製金鑰 → 再回終端機按 Enter**（指令在按 Enter 那一刻才讀剪貼簿）。
    - Windows（開「PowerShell」，不是這個對話）：
      ```
