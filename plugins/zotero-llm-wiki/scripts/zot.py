@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Zotero PDF tools (read-only; never modifies the Zotero database)
+  zot.py status                     show setup: Zotero data folder, API key, saved settings
   zot.py find "keywords"            find papers by title/author → attachment key, title, authors
   zot.py grep <key> "regex"         search a paper, listing page numbers and context
   zot.py page <key> <page>          print the full text of one page
@@ -9,7 +10,7 @@
                                     highlight a copy of the PDF and open it with the default app (the original is untouched)
 """
 import sys, re, json, sqlite3
-from litcommon import ZDB, CACHE, storage_file, open_path
+from litcommon import ZDIR, ZDB, CACHE, CONF, storage_file, open_path, settings
 
 PDFCACHE = CACHE / "pdftext"
 
@@ -32,6 +33,13 @@ def pages(att):
     txt = [pg.get_text() for pg in pymupdf.open(pdf_path(att))]
     cache.write_text(json.dumps(txt, ensure_ascii=False), encoding="utf-8")
     return txt
+
+def status():
+    ok = (ZDIR / "zotero.sqlite").exists()
+    print(f"Zotero data folder: {ZDIR} ({'ok' if ok else 'zotero.sqlite NOT FOUND'})")
+    print(f"Zotero API key: {'set' if (CONF / 'zotero' / 'api_key').exists() else 'not set'}")
+    for k, v in settings().items():
+        print(f"setting {k}: {v}")
 
 def find(q):
     sql = """select a.key, coalesce(tv.value,''), a2.path,
@@ -83,7 +91,8 @@ def hl(att, page, snippets):
     open_path(out)
 
 cmd, *a = sys.argv[1:] or ["-h"]
-if cmd == "find": find(" ".join(a))
+if cmd == "status": status()
+elif cmd == "find": find(" ".join(a))
 elif cmd == "grep": grep(a[0], a[1])
 elif cmd == "page": print(pages(a[0])[int(a[1])-1])
 elif cmd == "open": open_path(f"zotero://open-pdf/library/items/{a[0]}?page={a[1]}")

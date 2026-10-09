@@ -76,8 +76,11 @@ def find_rects(pg, text):
         if w.endswith("-") and i + 1 < len(words) and words[i + 1][5:7] != words[i][5:7]:
             nxt = words[i + 1][4]
             toks.append(({_norm(w[:-1] + nxt), _norm(w + nxt)}, [i, i + 1])); i += 2
-        else:
-            toks.append(({_norm(w)}, [i])); i += 1
+        else:                                         # thin spaces (refs. 57) make one PDF word several tokens
+            import unicodedata
+            for part in unicodedata.normalize("NFKC", w).split() or [w]:
+                toks.append(({_norm(part)}, [i]))
+            i += 1
     q = [_norm(w) for w in text.split() if _norm(w)]
     for s in range(len(toks) - len(q) + 1):
         if all(q[k] in toks[s + k][0] for k in range(len(q))):

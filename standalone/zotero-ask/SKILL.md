@@ -13,10 +13,13 @@ The tools are in `scripts/` inside this skill's folder (the base directory shown
 - `Z` = `PY "<skill>/scripts/zot.py"` (reads Zotero PDFs, read-only)
 - `A` = `PY "<skill>/scripts/zotann.py"` (writes grey highlights, needs an API key)
 
+Write out each command in full; don't store a command in a shell variable (`Z=…; $Z find` fails in zsh).
+
 If the first run fails (no Python, no `pymupdf`, no `zotero.sqlite`), go through **Setup** at the end first.
 
 ## 1. Find the paper
 
+0. **Every time, start with `Z status`.** It shows whether the API key is set (decides section 4) and whether `zotero_ask_notes` is set (decides section 5).
 1. `Z find "author keyword"` → **attachment key** (the PDF attachment's key, not the parent item's), title, authors.
 2. Several matches: list them and ask the user to pick. None: ask for other keywords, or to check that the PDF is in Zotero. **Do not search the web.**
 3. Supplementary material is usually a separate attachment; `Z find` lists it too.
@@ -36,7 +39,7 @@ If the first run fails (no Python, no `pymupdf`, no `zotero.sqlite`), go through
 
 ## 4. Grey highlights (when a key is set up; do it after answering, without asking)
 
-No key (`~/.config/zotero/api_key` missing): skip this, and at the end of the first answer mention once that saying "set up zotero-ask" lets Claude highlight the PDF automatically. **Never work around a missing key**: don't draw on the PDF with other tools.
+No key (`Z status` says `not set`): skip this, and at the end of the first answer mention once that saying "set up zotero-ask" lets Claude highlight the PDF automatically. **Never work around a missing key**: don't draw on the PDF with other tools.
 
 **Never write to the Zotero data folder**: no changes to files in `storage/`, to the PDFs or to `zotero.sqlite`. Highlights go only through `A add`, which uses the Zotero web API.
 
@@ -60,7 +63,7 @@ The attachment must be synced to zotero.org for the web API to find it; if the s
 
 **Don't save by default.** Write the Q&A to Markdown only when:
 - the user asks this time ("save this as a note", "write it to a md file"), or
-- `~/.config/lit-tools/config.json` has `"zotero_ask_notes": "<folder>"`. When the user says "always save notes to X", store it with `PY -c "import sys; sys.path.insert(0, r'<skill>/scripts'); import litcommon; litcommon.save_setting('zotero_ask_notes', r'<folder>')"`; when they say to stop, set it to an empty string.
+- `Z status` shows `setting zotero_ask_notes: <folder>` with a non-empty folder; then save every answer there without asking. When the user says "always save notes to X", store it with `PY -c "import sys; sys.path.insert(0, r'<skill>/scripts'); import litcommon; litcommon.save_setting('zotero_ask_notes', r'<folder>')"`; when they say to stop, set it to an empty string.
 
 No folder given: ask once where to save. One file per paper, named `FirstAuthor Year Short title.md`. Append new Q&As at the end of the same file; never rewrite old ones.
 
