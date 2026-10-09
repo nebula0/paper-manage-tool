@@ -19,12 +19,12 @@
 | | Claude 會做什麼 | 需要什麼 | 怎麼安裝 |
 |---|---|---|---|
 | **1. [zotero-ask](#主線-1zotero-ask問-zotero-裡的論文)** | 讀你 Zotero 裡的 PDF，附頁碼與原句回答，在 PDF 上畫灰色標註，你要的話存成筆記 | Zotero、Python | 下載 zip |
-| **2. [paper-search](#主線-2paper-search找文獻)** | 用 OpenAlex 搜尋論文，標出你已經有的，把你選的加進 Zotero | Zotero、Python | 下載 zip（即將推出） |
+| **2. [paper-search](#主線-2paper-search找文獻)** | 用 OpenAlex 搜尋論文，標出你已經有的，把你選的加進 Zotero | Python（Zotero 選用） | 下載 zip |
 | **3. [zotero-llm-wiki](#主線-3完整版-zotero-llm-wiki)**（完整版） | 以上全部，再加上 Obsidian 文獻庫：一篇一頁、搜尋紀錄、閱讀進度、AI 筆記 | Zotero、Better BibTeX、Obsidian、Python | Claude Code 外掛 |
 
 三條路都需要 Claude 付費訂閱（Pro 或 Max）和 Claude Code。還沒裝 Claude Code 的話，[第 1 步](#第-1-步安裝軟體)裡有安裝方法。
 
-完整版已經包含 zotero-ask 的所有功能，兩個裝一個就好，不要同時裝。
+zotero-ask 和 paper-search 可以一起裝。完整版已經包含這兩個的功能，所以「兩個小 skill」和「完整版」選一種裝就好，不要同時裝。
 
 ---
 
@@ -64,7 +64,35 @@
 
 ## 主線 2：paper-search，找文獻
 
-**即將推出。** paper-search 會依主題找論文，書目一律從 OpenAlex 查證，不會編造。已經在你 Zotero 裡的標 ★、你排除過的標 ✗，並把你選的論文加進 Zotero。
+請 Claude 依主題找論文。標題、作者、年份、期刊、DOI 一律從 [OpenAlex](https://openalex.org) 查證，不會憑記憶編造；推薦之前也會先讀過摘要。
+
+- **知道你有哪些**：先查你的 Zotero，已經有的標 ★，你排除過的標 ✗ 並跳過。
+- **引用追蹤**：「這篇引用了哪些？」「誰引用了這篇？」，是找你這個小領域新文章最快的方法。
+- **加進 Zotero**：說「把第 1、3 篇加進 Zotero」，就會加到你在 Zotero 裡選取的資料夾，有免費全文時順便附上 PDF。只要 Zotero 開著就好，不需要 API 金鑰。
+- **選用的紀錄**：指定一個資料夾，每次搜尋和找到的論文都會存成 CSV，之後再搜就不會重複。
+
+Zotero 是選用的：沒有 Zotero，paper-search 一樣能搜尋，在對話裡回答。
+
+**安裝**
+
+1. 下載 [paper-search.zip](https://github.com/nebula0/zotero-llm-wiki/releases/latest/download/paper-search.zip)，存到「下載」資料夾。
+2. 解壓縮到 Claude Code 的 skills 資料夾：
+   - macOS（終端機）：
+     ```
+     mkdir -p ~/.claude/skills/paper-search && unzip -o ~/Downloads/paper-search.zip -d ~/.claude/skills/paper-search
+     ```
+   - Windows（PowerShell）：
+     ```
+     Expand-Archive -Force "$HOME\Downloads\paper-search.zip" "$HOME\.claude\skills\paper-search"
+     ```
+3. 打開 Claude Code，說：
+   > 設定 paper-search
+
+**使用**
+
+> 幫我找矽微環共振器熱調控的近期文獻，先從綜述開始。
+
+paper-search 和 zotero-ask 很適合一起用：用一個找論文，再用另一個問論文內容。
 
 ---
 
@@ -322,8 +350,8 @@ Better BibTeX 沒裝好，或那篇還沒產生代碼。在 Zotero 對那篇按�
 **Q：想改分類標籤。**
 跟 Claude 說「標籤詞表加一個 topic/xxx，意思是……」，它會更新 `設定.json`。
 
-**Q：zotero-ask 和完整版可以一起裝嗎？**
-不行。完整版本來就會讀論文、畫灰色標註，兩個都裝的話，Claude 會不知道該用哪一個。換成完整版時，把 `.claude/skills/zotero-ask` 資料夾刪掉。
+**Q：zotero-ask 或 paper-search 可以和完整版一起裝嗎？**
+不行。完整版本來就會讀論文、搜尋文獻，同時裝的話，Claude 會不知道該用哪一個。換成完整版時，把 `.claude/skills/zotero-ask` 和 `.claude/skills/paper-search` 資料夾刪掉。
 
 **Q：完整版有新版本。**
 在 Claudian 說「幫我更新 zotero-llm-wiki 外掛：執行 `claude plugin marketplace update zotero-llm-wiki`，再執行 `claude plugin update zotero-llm-wiki@zotero-llm-wiki`」，然後重開 Obsidian。（用壓縮檔安裝的，先用新下載的資料夾取代舊的。）

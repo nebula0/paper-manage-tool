@@ -19,12 +19,12 @@ Start small and move up when you need more. All three use the same Zotero setup.
 | | What Claude does | What you need | How to install |
 |---|---|---|---|
 | **1. [zotero-ask](#path-1-zotero-ask-ask-about-papers-in-zotero)** | Reads the PDFs in your Zotero, answers with page numbers and quotes, leaves grey highlights in the PDF, saves notes if you ask | Zotero, Python | Download a zip |
-| **2. [paper-search](#path-2-paper-search-find-literature)** | Searches OpenAlex for papers, marks the ones you already have, adds the ones you pick to Zotero | Zotero, Python | Download a zip (coming soon) |
+| **2. [paper-search](#path-2-paper-search-find-literature)** | Searches OpenAlex for papers, marks the ones you already have, adds the ones you pick to Zotero | Python (Zotero optional) | Download a zip |
 | **3. [zotero-llm-wiki](#path-3-the-full-zotero-llm-wiki)** (full version) | All of the above, plus a literature database in Obsidian: one page per paper, search logs, reading progress, AI notes | Zotero, Better BibTeX, Obsidian, Python | Claude Code plugin |
 
 Every path needs a paid Claude subscription (Pro or Max) and Claude Code. If you don't have Claude Code yet, the [Claude Code part of Step 1](#step-1-install-the-software) shows how to install it.
 
-The full version already includes everything zotero-ask does. Install one or the other, not both.
+zotero-ask and paper-search work well together. The full version already includes both, so install either the skills or the full version, not both.
 
 ---
 
@@ -64,7 +64,35 @@ To update, download the zip again and run the same unzip command. The `VERSION` 
 
 ## Path 2: paper-search, find literature
 
-*Coming soon.* paper-search finds papers on a topic with bibliographic data checked against OpenAlex, never made up. It marks papers already in your Zotero (★) and ones you excluded before (✗), and adds the ones you pick to Zotero.
+Ask Claude to find papers on a topic. Every title, author, year, venue and DOI comes from [OpenAlex](https://openalex.org), never from memory, and Claude reads the abstracts before recommending anything.
+
+- **Knows what you have:** it checks your Zotero first, marks papers already there (★) and skips ones you excluded before (✗).
+- **Citation tracking:** "what does this paper cite?" and "what cites it?", the fastest way to find newer work in your niche.
+- **Adds to Zotero:** say "add #1 and #3 to Zotero" and they go into the collection selected in Zotero, with the open-access PDF when there is one. Zotero just needs to be open; no API key.
+- **Optional log:** set a folder and every search and paper is kept in a CSV file, so later searches don't repeat themselves.
+
+Zotero is optional: without it, paper-search still searches and answers in the chat.
+
+**Install**
+
+1. Download [paper-search.zip](https://github.com/nebula0/zotero-llm-wiki/releases/latest/download/paper-search.zip) to your Downloads folder.
+2. Unzip it into your Claude Code skills folder:
+   - macOS (Terminal):
+     ```
+     mkdir -p ~/.claude/skills/paper-search && unzip -o ~/Downloads/paper-search.zip -d ~/.claude/skills/paper-search
+     ```
+   - Windows (PowerShell):
+     ```
+     Expand-Archive -Force "$HOME\Downloads\paper-search.zip" "$HOME\.claude\skills\paper-search"
+     ```
+3. Start Claude Code and say:
+   > set up paper-search
+
+**Use it**
+
+> Find recent papers on thermal tuning of silicon microring resonators. Start with reviews.
+
+paper-search and zotero-ask work well together: find papers with one, then ask about them with the other.
 
 ---
 
@@ -324,8 +352,8 @@ Better BibTeX isn't installed correctly, or that paper doesn't have a key yet. I
 **Q: I want to change the tags.**
 Tell Claude something like "add topic/xxx to the tag vocabulary, meaning …". It updates `設定.json`.
 
-**Q: Can I install zotero-ask and the full version together?**
-No. The full version already reads papers and adds grey highlights, and with both installed Claude can't tell which one to use. If you move up to the full version, delete the `.claude/skills/zotero-ask` folder.
+**Q: Can I install zotero-ask or paper-search together with the full version?**
+No. The full version already reads papers and searches the literature, and with both installed Claude can't tell which one to use. If you move up to the full version, delete the `.claude/skills/zotero-ask` and `.claude/skills/paper-search` folders.
 
 **Q: How do I update the full version?**
 In Claudian, say "update the zotero-llm-wiki plugin: run `claude plugin marketplace update zotero-llm-wiki`, then `claude plugin update zotero-llm-wiki@zotero-llm-wiki`", then restart Obsidian. (If you installed from a ZIP, replace the old folder with a fresh download first.)
