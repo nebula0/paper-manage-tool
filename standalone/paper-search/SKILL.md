@@ -1,6 +1,6 @@
 ---
 name: paper-search
-description: Find research papers with bibliographic data checked against OpenAlex, never made up. Marks papers already in your Zotero library (★) and ones you excluded before (✗); can keep a CSV log and export RIS for Zotero import. Use when the user asks to find, search for or recommend papers or literature on a topic, wants a literature review starting point, wants to check a citation or DOI, or wants citation tracking (what a paper cites / what cites it). Also use when the user says "set up paper-search".
+description: Find research papers with bibliographic data checked against OpenAlex, never made up. Checks your Zotero library first, marks papers you already have (★) and ones you excluded before (✗); can keep a CSV log and export RIS for Zotero import. Use when the user asks to find, search for or recommend papers or literature on a topic, wants a literature review starting point, wants to check a citation or DOI, or wants citation tracking (what a paper cites / what cites it). Also use when the user says "set up paper-search".
 ---
 
 # paper-search: find papers you can trust
@@ -23,15 +23,20 @@ If the first run fails (no Python, no internet), go through **Setup** at the end
 
 ## Searching
 
-1. **Understand the goal.** If the request is vague ("papers on X"), ask one question about what it's for (a thesis intro, a specific method, a review). Skip this when the goal is clear.
-2. **New topic: start from reviews.** Find 2–4 highly cited reviews first; their sections tell you which sub-topics to search and their references are good seeds.
-3. **Search one sub-topic per query**, look at the results, then decide the next query. Don't cram several ideas into one query.
+1. **Check the user's Zotero first** (skip if `P status` says Zotero isn't found): `P library "keywords"`, trying 2–3 keyword variants (synonyms, singular/plural, e.g. `metasurface` as well as `metamaterial`; every word must match, so use 1–2 words per query). What they already collected tells you:
+   - which papers to show as "already in your Zotero" instead of recommending them as new;
+   - which angle of the topic they actually work on (e.g. nonlinear metasurfaces *for optical neural networks*, not mechanical metamaterials). Aim the search at that angle;
+   - good seeds for citation tracking (step 4).
+2. **Understand the goal.** If the request is still vague after looking at their library, ask one question about what it's for (a thesis intro, a specific method, a review). Skip this when the goal is clear.
+3. **New topic: start from reviews.** Find 2–4 highly cited reviews first; their sections tell you which sub-topics to search and their references are good seeds.
+4. **Search one sub-topic per query**, look at the results, then decide the next query. Don't cram several ideas into one query.
    - Discovery: use web search with the field's own terms, then check each hit with `P fetch <DOI>`.
    - `P search "query" [--from YEAR] [--to YEAR] [--abs]` for OpenAlex keyword search, when you need result counts or a year range. Broad queries get flooded by general reviews; be specific.
-   - Citation tracking once you have 1–2 core papers: `P cites <DOI> refs --abs` (what it cites) and `P cites <DOI> citedby --abs` (what cites it, most cited first).
-4. **Read the abstract before judging** (`P fetch <DOI>`). No abstract anywhere: basis is `metadata only`, still list it as a candidate; don't drop it just for that.
-5. **Answer in the chat:**
-   - Papers worth reading, most useful first: `Author et al. (Year). Title. Venue. DOI` + contribution (basis) + why it fits the user's goal. Mark ★ ones as already in Zotero.
+   - Citation tracking from 1–2 core papers (from their Zotero when possible): `P cites <DOI> refs --abs` (what it cites) and `P cites <DOI> citedby --abs` (what cites it, most cited first). `citedby` on a paper they already have is the best way to find newer work in their exact niche.
+5. **Read the abstract before judging** (`P fetch <DOI>`). No abstract anywhere: basis is `metadata only`, still list it as a candidate; don't drop it just for that.
+6. **Answer in the chat:**
+   - **Already in your Zotero** (when relevant ones exist): a short list, one line each, so the user sees what they have. Don't re-recommend them below.
+   - New papers worth reading, most useful first: `Author et al. (Year). Title. Venue. DOI` + contribution (basis) + why it fits the user's goal. Mark ★ ones as already in Zotero.
    - Excluded papers, one line each with the reason.
    - Which 2–3 to read first, and any free full-text links.
    - One closing line on what you did, e.g. `4 queries, 2 citation tracks | 9 kept, 5 excluded, 3 already in Zotero`.
@@ -71,7 +76,7 @@ Go one step at a time: check each step first and skip it if it's already done; w
 
 1. **Python**: try `python --version`, `python3 --version`, `py --version` in order and use one that is ≥ 3.9. None: install from https://www.python.org/downloads/ (on Windows tick "Add python.exe to PATH" on the first screen, then restart Claude Code). No extra packages are needed.
 2. **Check**: `P status`, then `P search "test" --n 1`. A result means it works.
-3. **Zotero (optional, for ★ marks)**: `P status` finds the Zotero library in the default place (`Zotero/` in the home folder). If the user has Zotero but it shows "not found", ask them to check Zotero Settings → Advanced → Files and Folders → Data Directory Location, then save it:
+3. **Zotero (optional, for checking what they already have and ★ marks)**: `P status` finds the Zotero library in the default place (`Zotero/` in the home folder). If the user has Zotero but it shows "not found", ask them to check Zotero Settings → Advanced → Files and Folders → Data Directory Location, then save it:
    `python3 -c "import sys; sys.path.insert(0, r'<skill>/scripts'); import litcommon; litcommon.save_setting('zotero_dir', r'<path>')"`
    Nothing is ever written to Zotero; it's read-only.
 4. **Log folder (optional)**: ask whether they want searches remembered; if yes, `P folder "<path>"`.

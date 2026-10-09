@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Paper search tools: bibliographic data always comes from OpenAlex, never from memory.
   papers.py status                          show setup: Zotero library, log folder, OpenAlex key
+  papers.py library "keywords" [--n 30]    search your own Zotero library first (title, abstract, venue, authors, tags)
   papers.py search "query" [--from YEAR] [--to YEAR] [--n 25] [--abs]
                                             OpenAlex keyword search
   papers.py cites <DOI> refs|citedby [--n 50] [--abs]
@@ -116,6 +117,39 @@ def zotero_index():
         else: dois.update(norm_doi(m) for m in re.findall(r"^DOI:\s*(\S+)", v or "", re.M | re.I))
     titles.discard("")
     return dois, titles
+
+def library(query, n=30):
+    """Search the user's Zotero library (title, abstract, venue, authors, tags); every word must match"""
+    if not (ZDIR / "zotero.sqlite").exists():
+        sys.exit("Zotero library not found, so there's nothing to search. (Optional: see Setup.)")
+    con = sqlite3.connect(ZDB, uri=True)
+    sql = """select i.itemID, f.fieldName, v.value from items i
+             join itemData d on d.itemID=i.itemID join fields f on f.fieldID=d.fieldID
+             join itemDataValues v on v.valueID=d.valueID
+             where f.fieldName in ('title','abstractNote','publicationTitle','DOI','date')
+               and i.itemTypeID not in (select itemTypeID from itemTypes where typeName in ('attachment','note','annotation'))
+               and i.itemID not in (select itemID from deletedItems)"""
+    items = {}
+    for iid, f, v in con.execute(sql):
+        items.setdefault(iid, {})[f] = v or ""
+    for iid, last in con.execute("""select ic.itemID, c.lastName from itemCreators ic join creators c
+                                    on c.creatorID=ic.creatorID order by ic.itemID, ic.orderIndex"""):
+        if iid in items: items[iid].setdefault("authors", []).append(last)
+    for iid, tag in con.execute("select it.itemID, t.name from itemTags it join tags t on t.tagID=it.tagID"):
+        if iid in items: items[iid].setdefault("tags", []).append(tag)
+    words = query.lower().split()
+    hits = []
+    for it in items.values():
+        hay = " ".join([it.get("title", ""), it.get("abstractNote", ""), it.get("publicationTitle", ""),
+                        " ".join(it.get("authors", [])), " ".join(it.get("tags", []))]).lower()
+        if all(w in hay for w in words): hits.append(it)
+    hits.sort(key=lambda it: it.get("date", "")[:4], reverse=True)
+    print(f"{len(hits)} items in your Zotero match \"{query}\"" + (f", showing {n}" if len(hits) > n else ""))
+    for it in hits[:n]:
+        au = it.get("authors", ["?"])
+        au = au[0] + (" et al." if len(au) > 1 else "")
+        print(f"★ {it.get('date', '')[:4] or '?'} {au} — {it.get('title', '(no title)')} — "
+              f"{it.get('publicationTitle') or '?'} — {norm_doi(it.get('DOI')) or 'no DOI'}")
 
 # ───────── log (papers.csv) ─────────
 def log_dir():
@@ -306,6 +340,9 @@ def flag(args, name):
 
 cmd, *a = sys.argv[1:] or ["-h"]
 if cmd == "status": status()
+elif cmd == "library":
+    n = int(opt(a, "--n", 30))
+    library(" ".join(a), n)
 elif cmd == "search":
     frm, to, n, ab = opt(a, "--from"), opt(a, "--to"), int(opt(a, "--n", 25)), flag(a, "--abs")
     search(" ".join(a), frm, to, n, ab)
