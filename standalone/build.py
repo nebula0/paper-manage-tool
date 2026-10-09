@@ -4,7 +4,8 @@
 
 每個 skill 的 SKILL.md 放在 standalone/<名字>/；腳本從外掛的 scripts/ 複製，並把錯誤訊息裡的設定提示換成這個 skill 的。
 """
-import re, shutil, zipfile
+import re, shutil, subprocess, zipfile
+from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -31,6 +32,8 @@ def build(name, conf):
         s = s.replace("; rules in skills/lit-library/規則.md §5.2", "")
         s = s.replace('"""zotero-llm-wiki shared settings', f'"""{name} shared settings')
         (out / "scripts" / f).write_text(s, encoding="utf-8")
+    rev = subprocess.run(["git", "describe", "--always", "--dirty"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+    (out / "VERSION").write_text(f"{rev} {datetime.now():%Y-%m-%d %H:%M}\n", encoding="utf-8")   # 對照用：git 版本與打包時間
     left = [f for f in conf["scripts"] if re.search(r"lit-setup|lit-library|zotero-llm-wiki", (out / "scripts" / f).read_text(encoding="utf-8"))]
     if left: raise SystemExit(f"⚠️ {name}：{left} 還提到外掛的 skill，請更新 build.py 的替換規則")
     z = DIST / f"{name}.zip"
