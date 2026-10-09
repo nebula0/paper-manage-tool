@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Zotero PDF 小工具（唯讀，不修改 Zotero 資料庫）
-  zot.py find "關鍵字"              依標題/作者找論文 → 附件代號、PDF 路徑
-  zot.py grep <附件代號> "正規式"    在論文中搜尋，列出頁碼與上下文
-  zot.py page <附件代號> <頁>        印出某一頁全文
-  zot.py open <附件代號> <頁>        在 Zotero 閱讀器打開到該頁
-  zot.py notes <附件代號>            列出 Zotero 裡的標註
-  zot.py hl <附件代號> <頁> "句子1[::註解]" ["句子2"...]
-                                    在 PDF 複本上標螢光並用預設程式打開（不動原檔）
+"""Zotero PDF tools (read-only; never modifies the Zotero database)
+  zot.py find "keywords"            find papers by title/author → attachment key, title, authors
+  zot.py grep <key> "regex"         search a paper, listing page numbers and context
+  zot.py page <key> <page>          print the full text of one page
+  zot.py open <key> <page>          open the Zotero reader at that page
+  zot.py notes <key>                list the annotations in Zotero
+  zot.py hl <key> <page> "sentence 1[::comment]" ["sentence 2"...]
+                                    highlight a copy of the PDF and open it with the default app (the original is untouched)
 """
 import sys, re, json, sqlite3
 from litcommon import ZDB, CACHE, storage_file, open_path
@@ -19,11 +19,11 @@ def db():
 def pdf_path(att):
     r = db().execute("""select a.path from items i join itemAttachments a on a.itemID=i.itemID
                         where i.key=? and a.contentType='application/pdf'""", (att,)).fetchone()
-    if not r: sys.exit(f"找不到 PDF 附件 {att}")
+    if not r: sys.exit(f"PDF attachment {att} not found")
     return storage_file(att, r[0])
 
 def pages(att):
-    """每頁文字；第一次讀取後存快取"""
+    """Text of each page; cached after the first read"""
     PDFCACHE.mkdir(parents=True, exist_ok=True)
     cache = PDFCACHE / f"{att}.json"
     if cache.exists():
@@ -62,7 +62,7 @@ def notes(att):
     iid = db().execute("select itemID from items where key=?", (att,)).fetchone()[0]
     for pos, text, com, color in db().execute("""select pageLabel, text, comment, color from itemAnnotations
                                                  where parentItemID=? order by sortIndex""", (iid,)):
-        print(f"p.{pos} {color} | {text or ''} | 註：{com or ''}")
+        print(f"p.{pos} {color} | {text or ''} | comment: {com or ''}")
 
 def hl(att, page, snippets):
     import pymupdf
@@ -73,13 +73,13 @@ def hl(att, page, snippets):
         snip, _, note = snip.partition("::")
         quads = pg.search_for(snip, quads=True)
         if not quads:
-            print(f"⚠️ p.{page} 找不到：{snip}"); continue
+            print(f"⚠️ p.{page} not found: {snip}"); continue
         a = pg.add_highlight_annot(quads); a.set_colors(stroke=(0.55, 0.85, 1.0))
         if note: a.set_info(content=note, title="Claude")
         a.update()
-        print(f"✅ 已標：{snip[:50]}")
+        print(f"✅ highlighted: {snip[:50]}")
     doc.save(out)
-    print(f"已存 {out}，標在第 {page} 頁")
+    print(f"saved {out}, highlights on page {page}")
     open_path(out)
 
 cmd, *a = sys.argv[1:] or ["-h"]

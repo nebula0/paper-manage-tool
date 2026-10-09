@@ -1,21 +1,23 @@
 #!/usr/bin/env python3
-"""Claude 的 Zotero 標註工具（AI 標註一律灰色 + AI/ 分類 tag，規範見 skills/lit-library/規則.md §5.2）
-  zotann.py add <附件代號> <標註.json> [--send]   依 JSON 找句子位置、組成 Zotero 標註；預設只預覽，加 --send 才寫入
-  zotann.py list <附件代號>                      列出這個 PDF 上的 AI 灰色標註（讀本機資料庫）
-  zotann.py delete <標註代號>... [--send]        刪除 AI 標註；只刪得掉灰色的，預設只預覽
+"""Claude's Zotero annotation tool (AI annotations are always grey + an AI/ category tag; rules in skills/lit-library/規則.md §5.2)
+  zotann.py add <key> <annotations.json> [--send]   locate the sentences from the JSON and build Zotero annotations; previews by default, writes only with --send
+  zotann.py list <key>                              list the grey AI annotations on this PDF (reads the local database)
+  zotann.py delete <annotation key>... [--send]     delete AI annotations; only grey ones can be deleted; previews by default
 
-標註.json 格式（list）：
-  [{"page": 6, "text": "PDF 裡的原句", "tag": "論點", "comment": "為什麼標", "task": "perspective"}]
-  page 是 PDF 第幾頁（從 1 起算）；tag 必須是 論點／質疑／方法／數據／待查／本研究；task 可省略。
+annotations.json format (a list):
+  [{"page": 6, "text": "sentence from the PDF", "tag": "claim", "comment": "why it is highlighted", "task": "perspective"}]
+  page is the PDF page index starting at 1; tag must be claim/critique/method/data/todo/relevance
+  (Chinese: 論點/質疑/方法/數據/待查/本研究); task is optional.
 
-寫入走 Zotero 網路 API，金鑰讀 ~/.config/zotero/api_key；不直接改 zotero.sqlite。
-Zotero 帳號編號第一次用時由金鑰查出，存在 ~/.config/lit-tools/config.json。
+Writes go through the Zotero web API with the key in ~/.config/zotero/api_key; zotero.sqlite is never modified directly.
+The Zotero user ID is looked up with the key on first use and saved in ~/.config/lit-tools/config.json.
 """
 import sys, json, sqlite3, urllib.request, urllib.error
-from litcommon import ZDB, SSL_CTX, storage_file, read_key, settings, save_setting
+from litcommon import ZDB, SSL_CTX, SETUP_HINT, storage_file, read_key, settings, save_setting
 
 AI_COLOR = "#aaaaaa"
-TAGS = {"論點", "質疑", "方法", "數據", "待查", "本研究"}
+TAGS = {"論點", "質疑", "方法", "數據", "待查", "本研究",                       # Chinese
+        "claim", "critique", "method", "data", "todo", "relevance"}         # English, same order as above
 
 def db():
     return sqlite3.connect(ZDB, uri=True)
@@ -23,16 +25,16 @@ def db():
 def pdf_path(att):
     r = db().execute("""select a.path from items i join itemAttachments a on a.itemID=i.itemID
                         where i.key=? and a.contentType='application/pdf'""", (att,)).fetchone()
-    if not r: sys.exit(f"找不到 PDF 附件 {att}")
+    if not r: sys.exit(f"PDF attachment {att} not found")
     return str(storage_file(att, r[0]))
 
 def api_key():
     k = read_key("zotero")
-    if not k: sys.exit("找不到 Zotero API 金鑰 ~/.config/zotero/api_key，請先執行 lit-setup（跟 Claude 說「設定 zotero-llm-wiki」）")
+    if not k: sys.exit(f"No Zotero API key at ~/.config/zotero/api_key; {SETUP_HINT}")
     return k
 
 def user_id():
-    """Zotero 帳號編號：設定檔有就用，沒有就用金鑰向 Zotero 查一次並存起來"""
+    """Zotero user ID: from the settings file if present, otherwise looked up once with the key and saved"""
     uid = settings().get("zotero_user_id")
     if uid: return str(uid)
     req = urllib.request.Request("https://api.zotero.org/keys/current",
@@ -41,7 +43,7 @@ def user_id():
         with urllib.request.urlopen(req, context=SSL_CTX) as r:
             uid = str(json.load(r)["userID"])
     except urllib.error.HTTPError as e:
-        sys.exit(f"Zotero 金鑰無效（{e.code}），請重新執行 lit-setup（跟 Claude 說「設定 zotero-llm-wiki」）")
+        sys.exit(f"Invalid Zotero API key ({e.code}); {SETUP_HINT}")
     save_setting("zotero_user_id", uid)
     return uid
 
@@ -55,20 +57,20 @@ def api(method, path, body=None, headers=None):
             txt = r.read().decode()
             return r.status, (json.loads(txt) if txt else None)
     except urllib.error.HTTPError as e:
-        sys.exit(f"Zotero API {method} {path} 失敗：{e.code} {e.read().decode()[:300]}")
+        sys.exit(f"Zotero API {method} {path} failed: {e.code} {e.read().decode()[:300]}")
 
 def _norm(w):
     import unicodedata
     return unicodedata.normalize("NFKC", w).strip(".,;:()[]\"'“”‘’").lower()
 
 def find_rects(pg, text):
-    """先精確搜尋；找不到就逐字比對，處理行尾斷字（experimen- tally）。回傳 (每行一個框, 起始字元位置)"""
+    """Exact search first; if that fails, match word by word to handle line-end hyphenation (experimen- tally). Returns (one rect per line, start character offset)"""
     import pymupdf
     hits = pg.search_for(text)
     if hits:
         return hits, max(0, pg.get_text().find(text.split()[0]))
-    words = pg.get_text("words")                      # (x0, y0, x1, y1, 字, block, line, 序)
-    toks, i = [], 0                                   # 每個 token：(可接受的寫法, 用到的字索引)
+    words = pg.get_text("words")                      # (x0, y0, x1, y1, word, block, line, index)
+    toks, i = [], 0                                   # each token: (accepted spellings, word indices used)
     while i < len(words):
         w = words[i][4]
         if w.endswith("-") and i + 1 < len(words) and words[i + 1][5:7] != words[i][5:7]:
@@ -96,13 +98,13 @@ def build(att, spec):
     for s in spec:
         tag = s.get("tag", "")
         if tag not in TAGS:
-            print(f"⚠️ tag「{tag}」不在 {sorted(TAGS)}，略過：{s['text'][:40]}"); bad += 1; continue
+            print(f"⚠️ tag \"{tag}\" not in {sorted(TAGS)}, skipped: {s['text'][:40]}"); bad += 1; continue
         pi = int(s["page"]) - 1
         pg = doc[pi]
         rects, offset = find_rects(pg, s["text"])
         if not rects:
-            print(f"⚠️ p.{pi+1} 找不到：{s['text'][:60]}"); bad += 1; continue
-        m = ~pg.transformation_matrix          # MuPDF 座標（左上原點）→ PDF 座標（左下原點）
+            print(f"⚠️ p.{pi+1} not found: {s['text'][:60]}"); bad += 1; continue
+        m = ~pg.transformation_matrix          # MuPDF coordinates (top-left origin) → PDF coordinates (bottom-left origin)
         pdf_rects = []
         for r in rects:
             q = r * m
@@ -119,24 +121,24 @@ def build(att, spec):
             "annotationPosition": json.dumps({"pageIndex": pi, "rects": pdf_rects}),
             "tags": [{"tag": f"AI/{tag}"}],
         })
-        print(f"✅ p.{pi+1} [AI/{tag}] {len(rects)} 段框線：{s['text'][:50]}")
+        print(f"✅ p.{pi+1} [AI/{tag}] {len(rects)} line box(es): {s['text'][:50]}")
     return out, bad
 
 def add(att, spec_file, send):
     synced = db().execute("select synced from items where key=?", (att,)).fetchone()
-    if synced is None: sys.exit(f"找不到附件 {att}")
-    if not synced[0]: print("⚠️ 這個附件在本機顯示尚未同步到 zotero.org，網路 API 可能找不到它")
+    if synced is None: sys.exit(f"Attachment {att} not found")
+    if not synced[0]: print("⚠️ This attachment is not synced to zotero.org yet; the web API may not find it")
     items, bad = build(att, json.load(open(spec_file, encoding="utf-8")))
-    print(f"— 共 {len(items)} 則可寫入，{bad} 則有問題")
+    print(f"— {len(items)} ready to write, {bad} with problems")
     if not send:
-        print("（預覽模式，未寫入。確認無誤後加 --send）"); return
+        print("(Preview only, nothing written. Add --send once it looks right)"); return
     for i in range(0, len(items), 50):
         _, res = api("POST", "/items", items[i:i + 50])
         for k, v in (res.get("successful") or {}).items():
-            print(f"已寫入 {v['key']}")
+            print(f"written {v['key']}")
         for k, v in (res.get("failed") or {}).items():
-            print(f"❌ 第 {int(k) + i + 1} 則失敗：{v.get('message')}")
-    print("寫入完成；Zotero 桌面版同步後就會看到灰色標註。")
+            print(f"❌ #{int(k) + i + 1} failed: {v.get('message')}")
+    print("Done; the grey annotations appear after Zotero desktop syncs.")
 
 def list_ai(att):
     rows = db().execute("""select ai.key, a.pageLabel, a.text, a.comment,
@@ -144,20 +146,20 @@ def list_ai(att):
                            from itemAnnotations a join items ai on ai.itemID=a.itemID
                            join items p on p.itemID=a.parentItemID
                            where p.key=? and lower(a.color)=? order by a.sortIndex""", (att, AI_COLOR)).fetchall()
-    if not rows: print("這個 PDF 目前沒有 AI 標註")
+    if not rows: print("No AI annotations on this PDF yet")
     for key, pl, text, com, tags in rows:
-        print(f"{key}  p.{pl} [{tags or '無 tag'}] {(text or '')[:60]}\n        註：{com or ''}")
+        print(f"{key}  p.{pl} [{tags or 'no tag'}] {(text or '')[:60]}\n        comment: {com or ''}")
 
 def delete(keys, send):
     for k in keys:
         _, it = api("GET", f"/items/{k}")
         d = it["data"]
         if d.get("itemType") != "annotation" or (d.get("annotationColor") or "").lower() != AI_COLOR:
-            print(f"⛔ {k} 不是 AI 灰色標註，不刪"); continue
-        print(f"{'刪除' if send else '將刪除'} {k}：{d.get('annotationText', '')[:50]}")
+            print(f"⛔ {k} is not a grey AI annotation, not deleting"); continue
+        print(f"{'deleted' if send else 'would delete'} {k}: {d.get('annotationText', '')[:50]}")
         if send:
             api("DELETE", f"/items/{k}", headers={"If-Unmodified-Since-Version": str(it["version"])})
-    if not send: print("（預覽模式，未刪除。確認無誤後加 --send）")
+    if not send: print("(Preview only, nothing deleted. Add --send once it looks right)")
 
 if __name__ == "__main__":
     args = [a for a in sys.argv[1:] if a != "--send"]
