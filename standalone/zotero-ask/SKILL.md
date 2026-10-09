@@ -93,7 +93,7 @@ Go one step at a time: check each step first and skip it if it's already done; w
    Test with `Z find a`; no error means it works.
 4. **Zotero API key (optional, only needed for grey highlights)**:
    1. Check that Zotero Settings → Sync is signed in (syncing data is enough; files don't need to sync).
-   2. Go to https://www.zotero.org/settings/keys → "Create new private key", under Personal Library tick **Allow library access**, **Allow notes access** and **Allow write access** → Save.
+   2. Open the illustrated guide in the user's browser: `PY -c "import sys; sys.path.insert(0, r'<skill>/scripts'); import litcommon; litcommon.open_path('https://github.com/nebula0/zotero-llm-wiki/blob/main/docs/zotero-api-key.md')"`, and also give the link in the chat in case the browser doesn't open. Sum it up: go to https://www.zotero.org/settings/keys → "Create new private key", under Personal Library tick **Allow library access**, **Allow notes access** and **Allow write access** → Save Key.
    3. Save the key: **paste the command into a terminal without pressing Enter → copy the key from the web page → go back and press Enter** (the command reads the clipboard when Enter is pressed).
       - Windows (PowerShell): `New-Item -ItemType Directory -Force "$HOME\.config\zotero" | Out-Null; (Get-Clipboard).Trim() | Set-Content -NoNewline -Encoding ascii "$HOME\.config\zotero\api_key"`
       - macOS (Terminal): `mkdir -p ~/.config/zotero && pbpaste > ~/.config/zotero/api_key && chmod 600 ~/.config/zotero/api_key`
