@@ -15,9 +15,9 @@ DIST = ROOT / "dist"
 
 # skill 名字 → 要帶的腳本、設定提示
 SKILLS = {
-    "zotero-ask": {
+    "paper-ask": {
         "scripts": ["litcommon.py", "zot.py", "zotann.py"],
-        "setup_hint": 'ask Claude to "set up zotero-ask"',
+        "setup_hint": 'ask Claude to "set up paper-ask"',
     },
     "paper-search": {
         "scripts": ["litcommon.py"],                     # papers.py 在 standalone/paper-search/scripts/

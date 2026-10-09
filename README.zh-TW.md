@@ -18,17 +18,17 @@
 
 | | Claude 會做什麼 | 需要什麼 | 怎麼安裝 |
 |---|---|---|---|
-| **1. [zotero-ask](#主線-1zotero-ask問-zotero-裡的論文)** | 讀你 Zotero 裡的 PDF，附頁碼與原句回答，在 PDF 上畫灰色標註，你要的話存成筆記 | Zotero、Python | 下載 zip |
+| **1. [paper-ask](#主線-1paper-ask問-zotero-裡的論文)** | 讀你 Zotero 裡的 PDF，附頁碼與原句回答，在 PDF 上畫灰色標註，你要的話存成筆記 | Zotero、Python | 下載 zip |
 | **2. [paper-search](#主線-2paper-search找文獻)** | 用 OpenAlex 搜尋論文，標出你已經有的，把你選的加進 Zotero | Python（Zotero 選用） | 下載 zip |
 | **3. [zotero-llm-wiki](#主線-3完整版-zotero-llm-wiki)**（完整版） | 以上全部，再加上 Obsidian 文獻庫：一篇一頁、搜尋紀錄、閱讀進度、AI 筆記 | Zotero、Better BibTeX、Obsidian、Python | Claude Code 外掛 |
 
 三條路都需要 Claude 付費訂閱（Pro 或 Max）和 Claude Code。還沒裝 Claude Code 的話，[第 1 步](#第-1-步安裝軟體)裡有安裝方法。
 
-zotero-ask 和 paper-search 可以一起裝。完整版已經包含這兩個的功能，所以「兩個小 skill」和「完整版」選一種裝就好，不要同時裝。
+paper-ask 和 paper-search 可以一起裝。完整版已經包含這兩個的功能，所以「兩個小 skill」和「完整版」選一種裝就好，不要同時裝。
 
 ---
 
-## 主線 1：zotero-ask，問 Zotero 裡的論文
+## 主線 1：paper-ask，問 Zotero 裡的論文
 
 問 Claude 你 Zotero 裡任何一篇論文。它會找到 PDF、讀相關的頁面，回答附頁碼與原句。它不會上網搜尋，也不會憑記憶回答：論文不在 Zotero 裡，它會請你先加進去。
 
@@ -38,19 +38,19 @@ zotero-ask 和 paper-search 可以一起裝。完整版已經包含這兩個的�
 
 **安裝**
 
-1. 下載 [zotero-ask.zip](https://github.com/nebula0/zotero-llm-wiki/releases/latest/download/zotero-ask.zip)，存到「下載」資料夾。
+1. 下載 [paper-ask.zip](https://github.com/nebula0/zotero-llm-wiki/releases/latest/download/paper-ask.zip)，存到「下載」資料夾。
 2. 解壓縮到 Claude Code 的 skills 資料夾：
    - macOS（終端機）：
      ```
-     mkdir -p ~/.claude/skills/zotero-ask && unzip -o ~/Downloads/zotero-ask.zip -d ~/.claude/skills/zotero-ask
+     mkdir -p ~/.claude/skills/paper-ask && unzip -o ~/Downloads/paper-ask.zip -d ~/.claude/skills/paper-ask
      ```
    - Windows（PowerShell）：
      ```
-     Expand-Archive -Force "$HOME\Downloads\zotero-ask.zip" "$HOME\.claude\skills\zotero-ask"
+     Expand-Archive -Force "$HOME\Downloads\paper-ask.zip" "$HOME\.claude\skills\paper-ask"
      ```
-   解完 `.claude/skills/zotero-ask/` 裡面應該直接看到 `SKILL.md`。
+   解完 `.claude/skills/paper-ask/` 裡面應該直接看到 `SKILL.md`。
 3. 打開 Claude Code，說：
-   > 設定 zotero-ask
+   > 設定 paper-ask
 
    Claude 會檢查 Python、找到你的 Zotero 資料夾。畫灰色標註用的 API 金鑰是選用的，Claude 會打開[圖解說明](docs/zotero-api-key.md)帶你建立。
 
@@ -92,7 +92,7 @@ Zotero 是選用的：沒有 Zotero，paper-search 一樣能搜尋，在對話�
 
 > 幫我找矽微環共振器熱調控的近期文獻，先從綜述開始。
 
-paper-search 和 zotero-ask 很適合一起用：用一個找論文，再用另一個問論文內容。
+paper-search 和 paper-ask 很適合一起用：用一個找論文，再用另一個問論文內容。
 
 ---
 
@@ -350,8 +350,11 @@ Better BibTeX 沒裝好，或那篇還沒產生代碼。在 Zotero 對那篇按�
 **Q：想改分類標籤。**
 跟 Claude 說「標籤詞表加一個 topic/xxx，意思是……」，它會更新 `設定.json`。
 
-**Q：zotero-ask 或 paper-search 可以和完整版一起裝嗎？**
-不行。完整版本來就會讀論文、搜尋文獻，同時裝的話，Claude 會不知道該用哪一個。換成完整版時，把 `.claude/skills/zotero-ask` 和 `.claude/skills/paper-search` 資料夾刪掉。
+**Q：paper-ask 或 paper-search 可以和完整版一起裝嗎？**
+不行。完整版本來就會讀論文、搜尋文獻，同時裝的話，Claude 會不知道該用哪一個。換成完整版時，把 `.claude/skills/paper-ask` 和 `.claude/skills/paper-search` 資料夾刪掉。
+
+**Q：我之前裝過 zotero-ask，現在怎麼辦？**
+是同一個 skill，改名叫 paper-ask。照[主線 1](#主線-1paper-ask問-zotero-裡的論文)裝好 paper-ask，再把舊的 `.claude/skills/zotero-ask` 資料夾刪掉，免得 Claude 看到兩份。
 
 **Q：完整版有新版本。**
 在 Claudian 說「幫我更新 zotero-llm-wiki 外掛：執行 `claude plugin marketplace update zotero-llm-wiki`，再執行 `claude plugin update zotero-llm-wiki@zotero-llm-wiki`」，然後重開 Obsidian。（用壓縮檔安裝的，先用新下載的資料夾取代舊的。）
@@ -370,3 +373,5 @@ Better BibTeX 沒裝好，或那篇還沒產生代碼。在 Zotero 對那篇按�
 ## 授權
 
 MIT License，見 [LICENSE](LICENSE)。歡迎改成適合你自己研究的版本。
+
+Zotero 是 Corporation for Digital Scholarship 的註冊商標。本專案與 Zotero 及 Corporation for Digital Scholarship 無關，也未經其認可。

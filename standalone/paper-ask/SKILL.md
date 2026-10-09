@@ -1,9 +1,9 @@
 ---
-name: zotero-ask
-description: Ask Claude about papers in your Zotero library. It finds the PDF, answers with page numbers and quotes, and can leave grey AI highlights in Zotero. No web search, no database. Use when the user asks about a paper's content (methods, data, claims, figures, what a passage means), wants papers in their Zotero summarized or compared, or wants highlights on a PDF. Also use when the user says "set up zotero-ask". 問 Zotero 裡的論文內容、整理或比較文獻、在 PDF 上畫記時使用。
+name: paper-ask
+description: Ask Claude about papers in your Zotero library. It finds the PDF, answers with page numbers and quotes, and can leave grey AI highlights in Zotero. No web search, no database. Use when the user asks about a paper's content (methods, data, claims, figures, what a passage means), wants papers in their Zotero summarized or compared, or wants highlights on a PDF. Also use when the user says "set up paper-ask". 問 Zotero 裡的論文內容、整理或比較文獻、在 PDF 上畫記時使用。
 ---
 
-# zotero-ask: ask about papers in Zotero
+# paper-ask: ask about papers in Zotero
 
 Answer questions by reading the PDFs in the user's Zotero library. **No web search, no database.** Answers go in the chat; when an API key is set up, also leave grey highlights on the PDF; save a note only when asked.
 
@@ -19,7 +19,7 @@ If the first run fails (no Python, no `pymupdf`, no `zotero.sqlite`), go through
 
 ## 1. Find the paper
 
-0. **Every time, start with `Z status`.** It shows whether the API key is set (decides section 4) and whether `zotero_ask_notes` is set (decides section 5).
+0. **Every time, start with `Z status`.** It shows whether the API key is set (decides section 4) and whether `paper_ask_notes` is set (decides section 5).
 1. `Z find "author keyword"` → **attachment key** (the PDF attachment's key, not the parent item's), title, authors.
 2. Several matches: list them and ask the user to pick. None: say it isn't in Zotero and ask the user to add the PDF or give other keywords. **Stop there: don't search the web, and don't answer about the paper's content from memory**, even with a disclaimer.
 3. Supplementary material is usually a separate attachment; `Z find` lists it too.
@@ -39,7 +39,7 @@ If the first run fails (no Python, no `pymupdf`, no `zotero.sqlite`), go through
 
 ## 4. Grey highlights (when a key is set up; do it after answering, without asking)
 
-No key (`Z status` says `not set`): skip this, and at the end of the first answer mention once that saying "set up zotero-ask" lets Claude highlight the PDF automatically. **Never work around a missing key**: don't draw on the PDF with other tools.
+No key (`Z status` says `not set`): skip this, and at the end of the first answer mention once that saying "set up paper-ask" lets Claude highlight the PDF automatically. **Never work around a missing key**: don't draw on the PDF with other tools.
 
 **Never write to the Zotero data folder**: no changes to files in `storage/`, to the PDFs or to `zotero.sqlite`. Highlights go only through `A add`, which uses the Zotero web API.
 
@@ -63,7 +63,7 @@ The attachment must be synced to zotero.org for the web API to find it; if the s
 
 **Don't save by default.** Write the Q&A to Markdown only when:
 - the user asks this time ("save this as a note", "write it to a md file"), or
-- `Z status` shows `setting zotero_ask_notes: <folder>` with a non-empty folder; then save every answer there without asking. When the user says "always save notes to X", store it with `PY -c "import sys; sys.path.insert(0, r'<skill>/scripts'); import litcommon; litcommon.save_setting('zotero_ask_notes', r'<folder>')"`; when they say to stop, set it to an empty string.
+- `Z status` shows `setting paper_ask_notes: <folder>` with a non-empty folder; then save every answer there without asking. When the user says "always save notes to X", store it with `PY -c "import sys; sys.path.insert(0, r'<skill>/scripts'); import litcommon; litcommon.save_setting('paper_ask_notes', r'<folder>')"`; when they say to stop, set it to an empty string.
 
 No folder given: ask once where to save. One file per paper, named `FirstAuthor Year Short title.md`. Append new Q&As at the end of the same file; never rewrite old ones.
 
@@ -82,7 +82,7 @@ No folder given: ask once where to save. One file per paper, named `FirstAuthor 
 - **Highlights**: TMMF4ZKK, UB3PAREQ
 ```
 
-## Setup (first use, or when the user says "set up zotero-ask")
+## Setup (first use, or when the user says "set up paper-ask")
 
 Go one step at a time: check each step first and skip it if it's already done; when something is missing, give the user one action at a time. **An API key is a password: never ask the user to paste it into the chat**, and never print it.
 

@@ -1,8 +1,8 @@
 # Create a Zotero API key ／ 建立 Zotero API 金鑰
 
-zotero-ask and zotero-llm-wiki use this key to add grey AI highlights to your PDFs. The key is a password: **never paste it into a chat with Claude.**
+paper-ask and zotero-llm-wiki use this key to add grey AI highlights to your PDFs. The key is a password: **never paste it into a chat with Claude.**
 
-zotero-ask 和 zotero-llm-wiki 用這把金鑰在 PDF 上畫灰色 AI 標註。金鑰等於密碼：**不要貼進和 Claude 的對話裡。**
+paper-ask 和 zotero-llm-wiki 用這把金鑰在 PDF 上畫灰色 AI 標註。金鑰等於密碼：**不要貼進和 Claude 的對話裡。**
 
 Before you start, make sure Zotero is signed in and syncing (Zotero Settings → Sync). Syncing data is enough; files don't need to sync.
 
@@ -18,13 +18,13 @@ Go to <https://www.zotero.org/settings/keys> and sign in. Click **Create new pri
 
 ## 2–3. Name it and tick three permissions ／ 取名並勾選三個權限
 
-Type any name, for example `zotero-ask`. Under **Personal Library**, tick all three:
+Type any name, for example `paper-ask`. Under **Personal Library**, tick all three:
 
 - **Allow library access**
 - **Allow notes access**
 - **Allow write access**
 
-名稱隨便取，例如 `zotero-ask`。在 **Personal Library** 底下三個都要勾。
+名稱隨便取，例如 `paper-ask`。在 **Personal Library** 底下三個都要勾。
 
 ![Key name and permissions](images/zotero-api-key/02.png)
 
