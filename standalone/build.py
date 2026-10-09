@@ -3,6 +3,7 @@
   python3 standalone/build.py            打包 standalone/ 底下所有 skill → dist/<名字>/ 與 dist/<名字>.zip
 
 每個 skill 的 SKILL.md 放在 standalone/<名字>/；腳本從外掛的 scripts/ 複製，並把錯誤訊息裡的設定提示換成這個 skill 的。
+skill 專用的腳本放 standalone/<名字>/scripts/，原樣複製。
 """
 import re, shutil, subprocess, zipfile
 from datetime import datetime
@@ -18,6 +19,10 @@ SKILLS = {
         "scripts": ["litcommon.py", "zot.py", "zotann.py"],
         "setup_hint": 'ask Claude to "set up zotero-ask"',
     },
+    "paper-search": {
+        "scripts": ["litcommon.py"],                     # papers.py 在 standalone/paper-search/scripts/
+        "setup_hint": 'ask Claude to "set up paper-search"',
+    },
 }
 
 def build(name, conf):
@@ -32,6 +37,9 @@ def build(name, conf):
         s = s.replace("; rules in skills/lit-library/規則.md §5.2", "")
         s = s.replace('"""zotero-llm-wiki shared settings', f'"""{name} shared settings')
         (out / "scripts" / f).write_text(s, encoding="utf-8")
+    own = ROOT / "standalone" / name / "scripts"
+    for f in sorted(own.glob("*.py")) if own.is_dir() else []:
+        shutil.copy2(f, out / "scripts" / f.name)
     rev = subprocess.run(["git", "describe", "--always", "--dirty"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
     (out / "VERSION").write_text(f"{rev} {datetime.now():%Y-%m-%d %H:%M}\n", encoding="utf-8")   # 對照用：git 版本與打包時間
     left = [f for f in conf["scripts"] if re.search(r"lit-setup|lit-library|zotero-llm-wiki", (out / "scripts" / f).read_text(encoding="utf-8"))]
